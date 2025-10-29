@@ -463,6 +463,7 @@ body {
 .member.selected {
   cursor: default;
   z-index: 1000;
+  overflow: visible;
 }
 .member.selected .deselect-member {
   opacity: 1;
@@ -634,9 +635,9 @@ body {
   }
 }
 .calendar table td.disabled, .calendar table th.disabled {
-  color: #ddd;
+  color: rgb(144.5, 144.5, 144.5);
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 1;
 }
 .calendar table td.disabled.today, .calendar table th.disabled.today {
   background: #ddd;
@@ -1667,3 +1668,12 @@ body {
 }
 
 /*# sourceMappingURL=style.css.map */
+
+/* Fix: hide decorative form sidebars when a member is selected on desktop
+   to prevent white vertical bars bleeding outside the card. */
+@media (min-width: 768px) {
+  .member.selected .form:before,
+  .member.selected .form:after {
+    display: none;
+  }
+}

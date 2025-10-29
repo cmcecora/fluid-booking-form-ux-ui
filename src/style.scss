@@ -547,6 +547,7 @@ body{
   &.selected{
     cursor: default;
     z-index: 1000;
+    overflow: visible; // Allow calendar to overflow the container
 
     .deselect-member{
       opacity: 1;
@@ -734,9 +735,9 @@ body{
       }
 
       &.disabled{
-        color: $grey;
+        color: darken($grey, 30%); // Darker color for better visibility
         pointer-events: none;
-        opacity: 0.5;
+        opacity: 1; // Changed from 0.5 to make text visible
 
         &.today{
           background: $grey;
@@ -1457,6 +1458,20 @@ body{
   &:after{
     right: 0;
     transform-origin: 100% 50%;
+  }
+
+  // When a member is opened (selected) on desktop, the form can overflow
+  // its container to allow the calendar above to escape the card. The
+  // decorative vertical sidebars (created with ::before/::after) then
+  // extend beyond the card and become visible as white vertical bars at
+  // the bottom corners. Hide these decorative elements in that state.
+  @include tablet-up {
+    .member.selected & {
+      &:before,
+      &:after {
+        display: none;
+      }
+    }
   }
 
   label{
