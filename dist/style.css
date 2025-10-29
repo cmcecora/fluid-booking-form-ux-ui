@@ -159,6 +159,32 @@ body {
   position: relative;
   width: 100%;
   height: 380rem;
+  max-height: 380rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  will-change: scroll-position;
+}
+.staff::-webkit-scrollbar {
+  width: 8rem;
+}
+.staff::-webkit-scrollbar-track {
+  background: rgba(221, 221, 221, 0.2);
+  border-radius: 5rem;
+}
+.staff::-webkit-scrollbar-thumb {
+  background: rgba(49.385, 45.9, 255, 0.3);
+  border-radius: 5rem;
+}
+.staff::-webkit-scrollbar-thumb:hover {
+  background: rgba(49.385, 45.9, 255, 0.5);
+}
+.wrap.member-selected .staff {
+  overflow: hidden;
+}
+
+.scroll-sentinel {
+  height: 1rem;
+  visibility: hidden;
 }
 
 .deselect-member, .deselect-date, .deselect-location {
@@ -190,11 +216,12 @@ body {
   padding: 15rem;
   height: 85rem;
   cursor: pointer;
-  position: absolute;
-  top: 0;
+  position: relative;
+  margin-bottom: 15rem;
   transition: opacity 800ms cubic-bezier(0.645, 0.045, 0.355, 1), transform 500ms cubic-bezier(0.645, 0.045, 0.355, 1), height 300ms cubic-bezier(0.645, 0.045, 0.355, 1), box-shadow 800ms cubic-bezier(0.645, 0.045, 0.355, 1);
   box-shadow: 5rem 5rem 20rem rgba(49.385, 45.9, 255, 0.15);
   overflow: hidden;
+  contain: layout style;
 }
 .member .name {
   display: inline-block;
@@ -216,8 +243,10 @@ body {
   top: 12rem;
   left: 12rem;
   background-size: cover;
+  background-position: center;
+  background-color: rgba(221, 221, 221, 0.2);
   filter: saturate(50%) contrast(120%);
-  transition: transform 500ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  transition: transform 500ms cubic-bezier(0.645, 0.045, 0.355, 1), opacity 500ms cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 .member .avatar:after {
   content: "";
@@ -229,25 +258,24 @@ body {
   background-color: hsl(241, 100%, 59%);
   mix-blend-mode: lighten;
 }
-.member:nth-child(1) {
-  transform: translatey(50rem) perspective(100rem) translatez(-10rem);
+.member .avatar.loading {
+  background-image: none !important;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
-.member:nth-child(2) {
-  transform: translatey(135rem) perspective(100rem) translatez(-10rem);
-}
-.member:nth-child(3) {
-  transform: translatey(220rem) perspective(100rem) translatez(-10rem);
-}
-.member:nth-child(4) {
-  transform: translatey(305rem) perspective(100rem) translatez(-10rem);
+.member .avatar.loading:after {
+  display: none;
 }
 .member.selected {
-  transform: translatey(0rem) perspective(100rem) translatez(0rem);
+  position: fixed;
+  top: calc(50% - 240px + 25px);
+  left: 50%;
+  transform: translateX(-50%) perspective(100rem) translatez(0rem);
   height: 450rem;
+  width: 500rem;
   cursor: default;
-  z-index: 2;
+  z-index: 1000;
   box-shadow: 10rem 10rem 60rem rgba(3.315, 0, 198.9, 0.1);
-  transition: opacity 300ms cubic-bezier(0.645, 0.045, 0.355, 1), transform 800ms cubic-bezier(0.645, 0.045, 0.355, 1), height 500ms cubic-bezier(0.645, 0.045, 0.355, 1), box-shadow 800ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  transition: opacity 300ms cubic-bezier(0.645, 0.045, 0.355, 1), transform 800ms cubic-bezier(0.645, 0.045, 0.355, 1), height 500ms cubic-bezier(0.645, 0.045, 0.355, 1), box-shadow 800ms cubic-bezier(0.645, 0.045, 0.355, 1), width 500ms cubic-bezier(0.645, 0.045, 0.355, 1), top 800ms cubic-bezier(0.645, 0.045, 0.355, 1), left 800ms cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 .member.selected .deselect-member {
   opacity: 1;
@@ -263,6 +291,18 @@ body {
   opacity: 1;
 }
 
+@keyframes skeleton-pulse {
+  0%, 100% {
+    background: linear-gradient(90deg, rgba(221, 221, 221, 0.2) 0%, rgba(221, 221, 221, 0.3) 50%, rgba(221, 221, 221, 0.2) 100%);
+    background-size: 200% 100%;
+    background-position: 200% 0;
+  }
+  50% {
+    background: linear-gradient(90deg, rgba(221, 221, 221, 0.2) 0%, rgba(221, 221, 221, 0.4) 50%, rgba(221, 221, 221, 0.2) 100%);
+    background-size: 200% 100%;
+    background-position: -200% 0;
+  }
+}
 .calendar {
   width: 100%;
   margin-top: 0rem;

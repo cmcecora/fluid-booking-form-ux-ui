@@ -172,6 +172,42 @@ body{
   position: relative;
   width: 100%;
   height: 380rem;
+  max-height: 380rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  // Performance optimizations
+  will-change: scroll-position;
+
+  // Custom scrollbar styling
+  &::-webkit-scrollbar{
+    width: 8rem;
+  }
+
+  &::-webkit-scrollbar-track{
+    background: rgba($grey, 0.2);
+    border-radius: 5rem;
+  }
+
+  &::-webkit-scrollbar-thumb{
+    background: rgba($color, 0.3);
+    border-radius: 5rem;
+
+    &:hover{
+      background: rgba($color, 0.5);
+    }
+  }
+
+  // Lock scroll when member is selected
+  .wrap.member-selected & {
+    overflow: hidden;
+  }
+}
+
+// Scroll sentinel for infinite scroll detection
+.scroll-sentinel{
+  height: 1rem;
+  visibility: hidden;
 }
 .deselect-member, .deselect-date, .deselect-location{
   position: absolute;
@@ -200,11 +236,15 @@ body{
   padding: 15rem;
   height: 85rem;
   cursor: pointer;
-  position: absolute;
-  top: 0;
+  position: relative;
+  margin-bottom: 15rem;
   transition: opacity $long $ease-in-out, transform $mid $ease-in-out, height $short $ease-in-out, box-shadow $long $ease-in-out;
   box-shadow: 5rem 5rem 20rem rgba($color, 0.15);
   overflow: hidden;
+
+  // Performance optimization
+  contain: layout style;
+
   .name{
     display: inline-block;
     margin-left: 75rem;
@@ -225,8 +265,10 @@ body{
     top: 12rem;
     left: 12rem;
     background-size: cover;
+    background-position: center;
+    background-color: rgba($grey, 0.2);
     filter: saturate(50%) contrast(120%);
-    transition: transform $mid $ease-in-out;
+    transition: transform $mid $ease-in-out, opacity $mid $ease-in-out;
     &:after{
       content: '';
       display: block;
@@ -237,28 +279,30 @@ body{
       background-color: $color;
       mix-blend-mode: lighten;
     }
-    
+
+    // Skeleton loading state
+    &.loading{
+      background-image: none !important;
+      animation: skeleton-pulse 1.5s ease-in-out infinite;
+
+      &:after{
+        display: none;
+      }
+    }
+
   }
-  
-  &:nth-child(1){
-    transform: translatey(50rem) perspective(100rem) translatez(-10rem);
-  }
-  &:nth-child(2){
-    transform: translatey(135rem) perspective(100rem) translatez(-10rem);
-  }
-  &:nth-child(3){
-    transform: translatey(220rem) perspective(100rem) translatez(-10rem);
-  }
-  &:nth-child(4){
-    transform: translatey(305rem) perspective(100rem) translatez(-10rem);
-  }
+
   &.selected{
-    transform: translatey(0rem) perspective(100rem) translatez(0rem);
+    position: fixed;
+    top: calc(50% - 240px + 25px);
+    left: 50%;
+    transform: translateX(-50%) perspective(100rem) translatez(0rem);
     height: 450rem;
+    width: 500rem;
     cursor: default;
-    z-index: 2;
+    z-index: 1000;
     box-shadow: 10rem 10rem 60rem rgba(darken($color,20%), 0.1);
-    transition: opacity $short $ease-in-out, transform $long $ease-in-out, height $mid $ease-in-out, box-shadow $long $ease-in-out;
+    transition: opacity $short $ease-in-out, transform $long $ease-in-out, height $mid $ease-in-out, box-shadow $long $ease-in-out, width $mid $ease-in-out, top $long $ease-in-out, left $long $ease-in-out;
     .deselect-member{
       opacity: 1;
       pointer-events: auto;
@@ -272,6 +316,26 @@ body{
       transition: opacity $mid $ease-in-out, transform $mid $ease-in-out, height $long $ease-in-out;
       opacity: 1;
     }
+  }
+}
+
+// Skeleton pulse animation for loading avatars
+@keyframes skeleton-pulse{
+  0%, 100%{
+    background: linear-gradient(90deg,
+      rgba($grey, 0.2) 0%,
+      rgba($grey, 0.3) 50%,
+      rgba($grey, 0.2) 100%);
+    background-size: 200% 100%;
+    background-position: 200% 0;
+  }
+  50%{
+    background: linear-gradient(90deg,
+      rgba($grey, 0.2) 0%,
+      rgba($grey, 0.4) 50%,
+      rgba($grey, 0.2) 100%);
+    background-size: 200% 100%;
+    background-position: -200% 0;
   }
 }
 
