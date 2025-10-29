@@ -80,6 +80,9 @@ body{
         transform: translatey(0%);
         pointer-events: auto;
       }
+      .calendar-icon{
+        opacity: 1;
+      }
       &.location-selected{
         .form{
           opacity: 1;
@@ -201,7 +204,8 @@ body{
   .name{
     display: inline-block;
     margin-left: 75rem;
-    line-height: 55rem;
+    line-height: 60rem;
+    vertical-align: middle;
     transform-origin: 0% 0%;
     transition: transform $mid $ease-in-out;
     font-weight: 100;
@@ -278,7 +282,7 @@ body{
   .date, .month, .year{
     position: absolute;
     top: 15rem;
-    left: 65rem;
+    left: 50rem;
     font-size: 50rem;
     display: inline-block;
     font-weight: 100;
@@ -332,12 +336,24 @@ body{
   }
 }
 
+.calendar-icon{
+  position: absolute;
+  left: 15rem;
+  top: 15rem;
+  width: 24rem;
+  height: 24rem;
+  fill: rgba($grey, 0.7);
+  opacity: 0;
+  transition: opacity $short $ease-in-out, fill $short $ease-in-out;
+  z-index: 1;
+}
+
 // Location Search Styles
 .location-search{
   position: absolute;
   left: 15rem;
   width: calc(100% - 20rem);
-  top: 135rem;
+  top: 125rem;
   opacity: 0;
   transform: translatey(50%);
   pointer-events: none;

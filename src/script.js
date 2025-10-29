@@ -397,9 +397,10 @@ function addCalendar(container){
   var dayNames = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   
   var current = 1 - startDay;
-  
-  //assemble calendar
-  var calendar = '<label class="date"></label><label class="month">'+monthNames[month]+'</label> <label class="year">'+year+'</label>';
+
+  //assemble calendar with icon
+  var calendar = '<svg class="calendar-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10z"></path></svg>';
+  calendar += '<label class="date"></label><label class="month">'+monthNames[month]+'</label> <label class="year">'+year+'</label>';
   
   calendar += '<table><tr>';
   dayLabels.forEach(function(label){
