@@ -30,12 +30,13 @@ body{
 
 .wrap{
   position: absolute;
-  top: 50%;
+  top: calc(50% - 25px);
   left: 50%;
   transform: translate3d(-50%,-50%,0);
   color: $color;
   width: 500rem;
-  height: 450rem; 
+  height: 380rem; 
+  margin-top: -90px;
   &.member-selected{ 
     .member:not(.selected){
       opacity: 0;
@@ -215,7 +216,7 @@ body{
 }
 
 .instructions{
-  margin-bottom: 25rem;
+  margin-bottom: 15rem;
   text-align: center;
   font-weight: 300;
   color: $color;
@@ -227,7 +228,7 @@ body{
 .staff{
   position: relative;
   width: 100%;
-  height: 450rem;
+  height: 380rem;
 }
 .deselect-member, .deselect-date, .deselect-slot{
   position: absolute;
@@ -253,8 +254,8 @@ body{
 .member{
   background: white;
   width: 100%;
-  padding: 20rem;
-  height: 100rem;
+  padding: 15rem;
+  height: 85rem;
   cursor: pointer;
   position: absolute;
   top: 0;
@@ -263,22 +264,22 @@ body{
   overflow: hidden;
   .name{
     display: inline-block;
-    margin-left: 85rem;
-    line-height: 60rem;
+    margin-left: 75rem;
+    line-height: 55rem;
     transform-origin: 0% 0%;
     transition: transform $mid $ease-in-out;
     font-weight: 100;
-    font-size: 40rem;
+    font-size: 35rem;
   }
   .avatar{
     transform-origin: 100% 0%;
-    width: 70rem;
-    height: 70rem;
+    width: 60rem;
+    height: 60rem;
     border-radius: 100rem;
     display: inline-block;
     position: absolute;
-    top: 15rem;
-    left: 15rem;
+    top: 12rem;
+    left: 12rem;
     background-size: cover;
     filter: saturate(50%) contrast(120%);
     transition: transform $mid $ease-in-out;
@@ -296,16 +297,16 @@ body{
   }
   
   &:nth-child(1){
-    transform: translatey(70rem) perspective(100rem) translatez(-10rem);
+    transform: translatey(50rem) perspective(100rem) translatez(-10rem);
   }
   &:nth-child(2){
-    transform: translatey(170rem) perspective(100rem) translatez(-10rem);
+    transform: translatey(135rem) perspective(100rem) translatez(-10rem);
   }
   &:nth-child(3){
-    transform: translatey(270rem) perspective(100rem) translatez(-10rem);
+    transform: translatey(220rem) perspective(100rem) translatez(-10rem);
   }
   &:nth-child(4){
-    transform: translatey(370rem) perspective(100rem) translatez(-10rem);
+    transform: translatey(305rem) perspective(100rem) translatez(-10rem);
   }
   &.selected{
     transform: translatey(0rem) perspective(100rem) translatez(0rem);
@@ -522,15 +523,15 @@ body{
 .search-container{
   position: relative;
   width: 100%;
-  margin-bottom: 25rem;
+  margin-bottom: 7.7rem;
   z-index: 100;
 }
 
 .search-input{
   width: 100%;
-  height: 60rem;
-  padding: 15rem 20rem;
-  font-size: 25rem;
+  height: 50rem;
+  padding: 12rem 20rem;
+  font-size: 23rem;
   font-weight: 100;
   color: $color;
   background: white;
@@ -683,7 +684,7 @@ body{
 
 .sig{
   position: fixed;
-  bottom: 8px;
+  bottom: 33px;
   right: 8px;
   text-decoration: none;
   font-size: 12px;
