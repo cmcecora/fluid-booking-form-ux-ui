@@ -1,3 +1,29 @@
+// ===== API CONFIGURATION =====
+
+// Google Maps API Key - Replace 'YOUR_API_KEY_HERE' with your actual API key
+// Get your key at: https://console.cloud.google.com/
+// Make sure to enable the "Places API" and restrict your key for security
+const GOOGLE_MAPS_API_KEY = 'AIzaSyAXjdNxgPg0RPWXyWZWW1Jk92rhi28j9B0';
+
+// IP Geolocation Service (ipapi.co - free, no key required)
+const IP_GEOLOCATION_API = 'https://ipapi.co/json/';
+
+// Google Places Autocomplete Service instance (initialized when Maps API loads)
+let placesAutocompleteService = null;
+
+// Initialize Google Maps Places API (callback function)
+function initGoogleMaps() {
+  if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+    placesAutocompleteService = new google.maps.places.AutocompleteService();
+    console.log('Google Maps Places API initialized successfully');
+  } else {
+    console.error('Google Maps API failed to load');
+  }
+}
+
+// Make initGoogleMaps available globally for the callback
+window.initGoogleMaps = initGoogleMaps;
+
 // ===== MEDICAL TESTS DATA =====
 
 // 500 realistic medical test names
@@ -613,21 +639,8 @@ $('.search-container').on('click', function(e){
 
 // ===== LOCATION SEARCH FUNCTIONALITY =====
 
-const mockLocations = [
-  'New York, NY', 'Los Angeles, CA', 'Chicago, IL', 'Houston, TX',
-  'Phoenix, AZ', 'Philadelphia, PA', 'San Antonio, TX', 'San Diego, CA',
-  'Dallas, TX', 'San Jose, CA', 'Austin, TX', 'Jacksonville, FL',
-  'Fort Worth, TX', 'Columbus, OH', 'San Francisco, CA', 'Charlotte, NC',
-  'Indianapolis, IN', 'Seattle, WA', 'Denver, CO', 'Washington, DC',
-  'Boston, MA', 'El Paso, TX', 'Nashville, TN', 'Detroit, MI',
-  'Oklahoma City, OK', 'Portland, OR', 'Las Vegas, NV', 'Memphis, TN',
-  'Louisville, KY', 'Baltimore, MD', 'Milwaukee, WI', 'Albuquerque, NM',
-  'Tucson, AZ', 'Fresno, CA', 'Mesa, AZ', 'Sacramento, CA',
-  'Atlanta, GA', 'Kansas City, MO', 'Colorado Springs, CO', 'Miami, FL',
-  'Raleigh, NC', 'Omaha, NE', 'Long Beach, CA', 'Virginia Beach, VA',
-  'Oakland, CA', 'Minneapolis, MN', 'Tampa, FL', 'Tulsa, OK',
-  'Arlington, TX', 'New Orleans, LA'
-];
+// Debounce timer for location input
+let locationInputTimer = null;
 
 function initLocationSearch() {
   const $input = $('.selected .location-input');
@@ -654,7 +667,7 @@ function attachLocationListeners() {
 }
 
 function handleLocationInput($input) {
-  const query = $input.val().trim().toLowerCase();
+  const query = $input.val().trim();
   const $results = $('.selected .location-results');
 
   if (query.length < 2) {
@@ -662,56 +675,101 @@ function handleLocationInput($input) {
     return;
   }
 
-  setTimeout(function() {
-    const filtered = mockLocations.filter(loc =>
-      loc.toLowerCase().includes(query)
-    ).slice(0, 6);
+  // Clear previous timer
+  if (locationInputTimer) {
+    clearTimeout(locationInputTimer);
+  }
 
-    if (filtered.length > 0) {
-      let resultsHTML = '';
-      filtered.forEach(location => {
-        resultsHTML += '<li>' + location + '</li>';
-      });
-      $results.html(resultsHTML).addClass('visible');
+  // Show loading state
+  $results.html('<li class="no-results">Searching...</li>').addClass('visible');
 
-      $results.find('li').on('click', function() {
-        handleLocationSelect($(this));
-      });
-    } else {
-      $results.html('<li class="no-results">No locations found</li>').addClass('visible');
+  // Debounce API calls (500ms)
+  locationInputTimer = setTimeout(function() {
+    // Check if Google Places API is loaded
+    if (!placesAutocompleteService) {
+      $results.html('<li class="no-results">Location service not available</li>').addClass('visible');
+      console.error('Google Places API not initialized');
+      return;
     }
-  }, 200);
+
+    // Make request to Google Places Autocomplete API
+    placesAutocompleteService.getPlacePredictions({
+      input: query,
+      types: ['(cities)'],
+      componentRestrictions: { country: 'us' }
+    }, function(predictions, status) {
+      if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+        let resultsHTML = '';
+
+        // Limit to 6 results and format as "City, State"
+        predictions.slice(0, 6).forEach(prediction => {
+          // Extract city and state from description
+          const parts = prediction.description.split(', ');
+          let locationText = prediction.description;
+
+          // Format as "City, State" if possible
+          if (parts.length >= 2) {
+            locationText = parts[0] + ', ' + parts[1];
+          }
+
+          resultsHTML += '<li data-place-id="' + prediction.place_id + '">' + locationText + '</li>';
+        });
+
+        $results.html(resultsHTML).addClass('visible');
+
+        $results.find('li').on('click', function() {
+          handleLocationSelect($(this));
+        });
+      } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+        $results.html('<li class="no-results">No locations found</li>').addClass('visible');
+      } else {
+        $results.html('<li class="no-results">Error searching locations</li>').addClass('visible');
+        console.error('Places API error:', status);
+      }
+    });
+  }, 500);
 }
 
 function handleGeolocation() {
-  if (navigator.geolocation) {
-    const $input = $('.selected .location-input');
-    const $icon = $('.selected .location-icon');
-    const $results = $('.selected .location-results');
+  const $input = $('.selected .location-input');
+  const $icon = $('.selected .location-icon');
+  const $results = $('.selected .location-results');
 
-    $icon.addClass('loading');
+  $icon.addClass('loading');
 
-    navigator.geolocation.getCurrentPosition(
-      function(position) {
-        const mockCity = mockLocations[Math.floor(Math.random() * mockLocations.length)];
-        $input.val(mockCity);
+  // Use IP-based geolocation API (ipapi.co)
+  fetch(IP_GEOLOCATION_API)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch location');
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Format location as "City, State"
+      const city = data.city || '';
+      const region = data.region_code || data.region || '';
+
+      if (city && region) {
+        const locationText = city + ', ' + region;
+        $input.val(locationText);
         $icon.removeClass('loading');
         $results.html('').removeClass('visible');
-        $('.selected.member').data('selected-location', mockCity);
+        $('.selected.member').data('selected-location', locationText);
         $('.wrap').addClass('location-selected');
 
-        // Display testing centers instead of focusing on form
-        displayTestingCenters(mockCity);
-      },
-      function(error) {
-        $icon.removeClass('loading');
-        alert('Unable to get your location. Please enter it manually.');
-        console.error('Geolocation error:', error);
+        // Display testing centers
+        displayTestingCenters(locationText);
+      } else {
+        throw new Error('Invalid location data');
       }
-    );
-  } else {
-    alert('Geolocation is not supported by your browser.');
-  }
+    })
+    .catch(error => {
+      $icon.removeClass('loading');
+      alert('Unable to detect your location. Please enter it manually.');
+      console.error('IP Geolocation error:', error);
+      $input.focus();
+    });
 }
 
 function handleLocationSelect($item) {
