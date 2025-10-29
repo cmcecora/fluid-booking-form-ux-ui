@@ -327,7 +327,7 @@ $('.member').on('click', function(e){
   }
 });
 
-$('.deselect-member, .restart').on('click', function(e){
+$(document).on('click', '.deselect-member, .restart', function(e){
   $('.member').removeClass('selected');
   $('.wrap').removeClass('member-selected date-selected location-selected booking-complete');
   e.preventDefault();
