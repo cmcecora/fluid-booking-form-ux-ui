@@ -1,0 +1,112 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    title Fluid Booking Form UX/UI
+    link(href='https://fonts.googleapis.com/css?family=Alegreya+Sans:100,300,400,500,700,800,900' rel='stylesheet')
+    link(rel='stylesheet', href='https://public.codepenassets.com/css/reset-2.0.min.css')
+    link(rel='stylesheet', href='style.css')
+    script(src='https://code.jquery.com/jquery-3.6.0.min.js')
+  body
+    .wrap
+      .instructions
+        .first Choose a medical test
+      .search-container
+        input.search-input(type="text" placeholder="Search medical tests..." autocomplete="off")
+        .search-dropdown
+          .skeleton-loading
+            .skeleton-item
+            .skeleton-item
+            .skeleton-item
+            .skeleton-item
+          .search-results
+      .staff
+        .member
+          .avatar(style='background-image: url(https://images.unsplash.com/photo-1579154204601-01588f351e67?w=300&h=300&fit=crop)')
+          .name Blood Test
+          .deselect-member change
+          .deselect-date change
+          .deselect-location change
+          .calendar
+          .location-search
+            .search-wrapper
+              svg.location-icon(viewBox="0 0 24 24")
+                path(d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z")
+              input.location-input(type="text" placeholder="Enter city or state" autocomplete="off")
+            ul.location-results
+          form.form
+            label Name
+            input(type="text" name="name" required)
+            label Email
+            input(type="email" name="email" required)
+            input(type="submit" value="Confirm Booking")
+          .confirm-message Booking Complete!
+            span.restart Book Again?
+        .member
+          .avatar(style='background-image: url(https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=300&h=300&fit=crop)')
+          .name X-Ray Imaging
+          .deselect-member change
+          .deselect-date change
+          .deselect-location change
+          .calendar
+          .location-search
+            .search-wrapper
+              svg.location-icon(viewBox="0 0 24 24")
+                path(d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z")
+              input.location-input(type="text" placeholder="Enter city or state" autocomplete="off")
+            ul.location-results
+          form.form
+            label Name
+            input(type="text" name="name" required)
+            label Email
+            input(type="email" name="email" required)
+            input(type="submit" value="Confirm Booking")
+          .confirm-message Booking Complete!
+            span.restart Book Again?
+        .member
+          .avatar(style='background-image: url(https://images.unsplash.com/photo-1559757175-5700dde675bc?w=300&h=300&fit=crop)')
+          .name MRI Scan
+          .deselect-member change
+          .deselect-date change
+          .deselect-location change
+          .calendar
+          .location-search
+            .search-wrapper
+              svg.location-icon(viewBox="0 0 24 24")
+                path(d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z")
+              input.location-input(type="text" placeholder="Enter city or state" autocomplete="off")
+            ul.location-results
+          form.form
+            label Name
+            input(type="text" name="name" required)
+            label Email
+            input(type="email" name="email" required)
+            input(type="submit" value="Confirm Booking")
+          .confirm-message Booking Complete!
+            span.restart Book Again?
+        .member
+          .avatar(style='background-image: url(https://images.unsplash.com/photo-1581595220892-b0739db3ba8c?w=300&h=300&fit=crop)')
+          .name Ultrasound
+          .deselect-member change
+          .deselect-date change
+          .deselect-location change
+          .calendar
+          .location-search
+            .search-wrapper
+              svg.location-icon(viewBox="0 0 24 24")
+                path(d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z")
+              input.location-input(type="text" placeholder="Enter city or state" autocomplete="off")
+            ul.location-results
+          form.form
+            label Name
+            input(type="text" name="name" required)
+            label Email
+            input(type="email" name="email" required)
+            input(type="submit" value="Confirm Booking")
+          .confirm-message Booking Complete!
+            span.restart Book Again?
+
+    a(href="http://nathan.tokyo" target="_blank").sig NATHAN.TOKYO
+
+    script(src='script.js')
