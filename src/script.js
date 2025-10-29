@@ -217,6 +217,13 @@ function attachLocationListeners() {
     handleLocationInput($(this));
   });
 
+  // Auto-select text on click if there's any text present
+  $selected.find('.location-input').off('click').on('click', function() {
+    if (this.value) {
+      this.select();
+    }
+  });
+
   // Geolocation icon click handler
   $selected.find('.location-icon').off('click').on('click', function() {
     handleGeolocation();
