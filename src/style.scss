@@ -174,7 +174,7 @@ body{
         &.booking-complete{
           .deselect-member, .deselect-date, .deselect-slot{
             opacity: 0;
-            pointer: none;
+            pointer-events: none;
           }
           .form{
             transition: opacity $mid $ease-in-out, transform $long $ease-in-out;
