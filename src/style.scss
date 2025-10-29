@@ -75,45 +75,12 @@ body{
           transition: opacity $short $ease-in-out, transform $short $ease-in-out;
         }
       }
-      .slots{ 
+      .location-search{
         opacity: 1;
         transform: translatey(0%);
         pointer-events: auto;
-        li{
-          transform: translatey(0);
-          opacity: 1;
-          color: $color;
-          &:nth-child(1){
-            transition-delay: $mid * 0/6;
-            transform: translateY(0rem) perspective(100rem) translateZ(0);
-          }
-          &:nth-child(2){
-            transition-delay: $mid * 1/6;
-            transform: translateY(50rem) perspective(100rem) translateZ(0);
-          }
-          &:nth-child(3){
-            transition-delay: $mid * 2/6;
-            transform: translateY(100rem) perspective(100rem) translateZ(0);
-          }
-          &:nth-child(4){
-            transition-delay: $mid * 3/6;
-            transform: translateY(150rem) perspective(100rem) translateZ(0);
-          }
-          &:nth-child(5){
-            transition-delay: $mid * 4/6;
-            transform: translateY(200rem) perspective(100rem) translateZ(0);
-          }
-          &:nth-child(6){
-            transition-delay: $mid * 5/6;
-            transform: translateY(250rem) perspective(100rem) translateZ(0);
-          }
-          &:nth-child(7){
-            transition-delay: $mid * 6/6;
-            transform: translateY(300rem) perspective(100rem) translateZ(0);
-          }
-        }
       }
-      &.slot-selected{ 
+      &.location-selected{
         .form{
           opacity: 1;
           transform: translatey(0%);
@@ -129,51 +96,20 @@ body{
               &:nth-child(6){transition-delay: $short * 6/6;}
           }
         }
-        .deselect-slot{
+        .deselect-location{
           opacity: 1;
           pointer-events: auto;
         }
-        .slots{
+        .location-search{
           pointer-events: none;
-        }
-        .slots li:not(.selected){
-          opacity: 0;
-          &:nth-child(1){
-            transition-delay: $mid * 0/6;
-            transform: translateY(0rem) perspective(100rem) translateZ(-50rem);
+
+          .location-results{
+            opacity: 0;
+            pointer-events: none;
           }
-          &:nth-child(2){
-            transition-delay: $mid * 1/6;
-            transform: translateY(50rem) perspective(100rem) translateZ(-50rem);
-          }
-          &:nth-child(3){
-            transition-delay: $mid * 2/6;
-            transform: translateY(100rem) perspective(100rem) translateZ(-50rem);
-          }
-          &:nth-child(4){
-            transition-delay: $mid * 3/6;
-            transform: translateY(150rem) perspective(100rem) translateZ(-50rem);
-          }
-          &:nth-child(5){
-            transition-delay: $mid * 4/6;
-            transform: translateY(200rem) perspective(100rem) translateZ(-50rem);
-          }
-          &:nth-child(6){
-            transition-delay: $mid * 5/6;
-            transform: translateY(250rem) perspective(100rem) translateZ(-50rem);
-          }
-          &:nth-child(7){
-            transition-delay: $mid * 6/6;
-            transform: translateY(300rem) perspective(100rem) translateZ(-50rem);
-          }
-        }
-        .slots li.selected{
-          transform: translateY(0rem) perspective(100rem) translateZ(0rem);
-          transition-delay: 0s;
-          border-bottom: 1px solid rgba($grey,0.8);
         }
         &.booking-complete{
-          .deselect-member, .deselect-date, .deselect-slot{
+          .deselect-member, .deselect-date, .deselect-location{
             opacity: 0;
             pointer-events: none;
           }
@@ -230,7 +166,7 @@ body{
   width: 100%;
   height: 380rem;
 }
-.deselect-member, .deselect-date, .deselect-slot{
+.deselect-member, .deselect-date, .deselect-location{
   position: absolute;
   color: $grey;
   top: 35rem;
@@ -247,7 +183,7 @@ body{
 .deselect-date{
   top: 95rem;
 }
-.deselect-slot{
+.deselect-location{
   top: 145rem;
 }
 
@@ -396,36 +332,136 @@ body{
   }
 }
 
-.slots{
+// Location Search Styles
+.location-search{
   position: absolute;
   left: 15rem;
   width: calc(100% - 20rem);
-  height: 320rem;
   top: 135rem;
   opacity: 0;
   transform: translatey(50%);
   pointer-events: none;
   transition: opacity $short $ease-in-out, transform $mid $ease-in-out;
-  font-size: 25rem;
-  font-weight: 100;
-  li{
-    background: white;
-    display: block;
-    transition: color $mid $ease-in-out, transform $long $ease-in-out, opacity $mid $ease-in-out, border $long $ease-in-out;
-    transform-origin: 100% 50%;
-    color: transparent;
-    border-bottom: 1px solid rgba($grey,0);
-    padding: 10rem 70rem;
-    cursor: pointer;
+
+  .search-wrapper{
+    position: relative;
+    width: 100%;
+    margin-bottom: 10rem;
+  }
+
+  .location-icon{
     position: absolute;
-    width: calc(100% - 20rem);
-    &:nth-child(1){transform: translatey(0rem) perspective(100rem) translatez(30rem);}
-    &:nth-child(2){transform: translatey(50rem) perspective(100rem) translatez(30rem);}
-    &:nth-child(3){transform: translatey(100rem) perspective(100rem) translatez(30rem);}
-    &:nth-child(4){transform: translatey(150rem) perspective(100rem) translatez(30rem);}
-    &:nth-child(5){transform: translatey(200rem) perspective(100rem) translatez(30rem);}
-    &:nth-child(6){transform: translatey(250rem) perspective(100rem) translatez(30rem);}
-    &:nth-child(7){transform: translatey(300rem) perspective(100rem) translatez(30rem);}
+    left: 15rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+    cursor: pointer;
+    fill: rgba($grey, 0.7);
+    transition: fill $short $ease-in-out, transform $short $ease-in-out;
+    z-index: 2;
+
+    &:hover{
+      fill: $color;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    &.loading{
+      animation: pulse 1s ease-in-out infinite;
+    }
+  }
+
+  .location-input{
+    width: 100%;
+    padding: 10rem 20rem 10rem 50rem;
+    font-size: 25rem;
+    font-weight: 100;
+    border: none;
+    border-bottom: 1px solid rgba($grey, 0.3);
+    background: white;
+    color: $color;
+    outline: none;
+    font-family: $sans;
+    transition: border-color $short $ease-in-out;
+
+    &::placeholder{
+      color: rgba($color, 0.4);
+      font-weight: 100;
+    }
+
+    &:focus{
+      border-bottom-color: $color;
+    }
+  }
+
+  .location-results{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height $short $ease-in-out;
+
+    &.visible{
+      max-height: 300rem;
+      overflow-y: auto;
+    }
+
+    li{
+      background: white;
+      padding: 10rem 20rem;
+      font-size: 22rem;
+      font-weight: 100;
+      color: $color;
+      cursor: pointer;
+      border-bottom: 1px solid rgba($grey, 0.15);
+      opacity: 0;
+      transform: translateY(10rem) perspective(100rem) translateZ(20rem);
+      transition: all $mid $ease-in-out, background-color $short $ease-in-out;
+
+      &:hover{
+        background: rgba($color, 0.05);
+        padding-left: 25rem;
+      }
+
+      &.no-results{
+        color: $grey;
+        text-align: center;
+        cursor: default;
+        &:hover{
+          background: white;
+          padding-left: 20rem;
+        }
+      }
+
+      &:last-child{
+        border-bottom: none;
+      }
+    }
+
+    &.visible li{
+      opacity: 1;
+      transform: translateY(0) perspective(100rem) translateZ(0);
+
+      // Staggered entrance animation
+      &:nth-child(1){transition-delay: $mid * 0/6;}
+      &:nth-child(2){transition-delay: $mid * 1/6;}
+      &:nth-child(3){transition-delay: $mid * 2/6;}
+      &:nth-child(4){transition-delay: $mid * 3/6;}
+      &:nth-child(5){transition-delay: $mid * 4/6;}
+      &:nth-child(6){transition-delay: $mid * 5/6;}
+    }
+  }
+}
+
+@keyframes pulse{
+  0%, 100%{
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  50%{
+    opacity: 0.5;
+    transform: translateY(-50%) scale(0.9);
   }
 }
 

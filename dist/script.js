@@ -177,6 +177,144 @@ $('.search-container').on('click', function(e){
   e.stopPropagation();
 });
 
+// ===== LOCATION SEARCH FUNCTIONALITY =====
+
+// Mock location data
+const mockLocations = [
+  'New York, NY', 'Los Angeles, CA', 'Chicago, IL', 'Houston, TX',
+  'Phoenix, AZ', 'Philadelphia, PA', 'San Antonio, TX', 'San Diego, CA',
+  'Dallas, TX', 'San Jose, CA', 'Austin, TX', 'Jacksonville, FL',
+  'Fort Worth, TX', 'Columbus, OH', 'San Francisco, CA', 'Charlotte, NC',
+  'Indianapolis, IN', 'Seattle, WA', 'Denver, CO', 'Washington, DC',
+  'Boston, MA', 'El Paso, TX', 'Nashville, TN', 'Detroit, MI',
+  'Oklahoma City, OK', 'Portland, OR', 'Las Vegas, NV', 'Memphis, TN',
+  'Louisville, KY', 'Baltimore, MD', 'Milwaukee, WI', 'Albuquerque, NM',
+  'Tucson, AZ', 'Fresno, CA', 'Mesa, AZ', 'Sacramento, CA',
+  'Atlanta, GA', 'Kansas City, MO', 'Colorado Springs, CO', 'Miami, FL',
+  'Raleigh, NC', 'Omaha, NE', 'Long Beach, CA', 'Virginia Beach, VA',
+  'Oakland, CA', 'Minneapolis, MN', 'Tampa, FL', 'Tulsa, OK',
+  'Arlington, TX', 'New Orleans, LA'
+];
+
+// Initialize location search after date selection
+function initLocationSearch() {
+  const $input = $('.selected .location-input');
+  $input.focus();
+  attachLocationListeners();
+}
+
+// Attach all location-related event listeners
+function attachLocationListeners() {
+  const $selected = $('.selected');
+
+  // Location input handler - wait for 2+ characters
+  $selected.find('.location-input').off('input').on('input', function() {
+    handleLocationInput($(this));
+  });
+
+  // Geolocation icon click handler
+  $selected.find('.location-icon').off('click').on('click', function() {
+    handleGeolocation();
+  });
+}
+
+// Handle location input with autocomplete
+function handleLocationInput($input) {
+  const query = $input.val().trim().toLowerCase();
+  const $results = $('.selected .location-results');
+
+  // Require at least 2 characters
+  if (query.length < 2) {
+    $results.html('').removeClass('visible');
+    return;
+  }
+
+  // Mock API simulation with setTimeout
+  setTimeout(function() {
+    // Filter locations that match the query
+    const filtered = mockLocations.filter(loc =>
+      loc.toLowerCase().includes(query)
+    ).slice(0, 6); // Max 6 results
+
+    if (filtered.length > 0) {
+      let resultsHTML = '';
+      filtered.forEach(location => {
+        resultsHTML += '<li>' + location + '</li>';
+      });
+      $results.html(resultsHTML).addClass('visible');
+
+      // Attach click handlers to results
+      $results.find('li').on('click', function() {
+        handleLocationSelect($(this));
+      });
+    } else {
+      $results.html('<li class="no-results">No locations found</li>').addClass('visible');
+    }
+  }, 200); // Simulate network delay
+}
+
+// Handle geolocation icon click
+function handleGeolocation() {
+  if (navigator.geolocation) {
+    const $input = $('.selected .location-input');
+    const $icon = $('.selected .location-icon');
+
+    // Visual feedback
+    $icon.addClass('loading');
+
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        // Mock reverse geocoding - in production, this would call a geocoding API
+        // For now, just pick a random city to simulate
+        const mockCity = mockLocations[Math.floor(Math.random() * mockLocations.length)];
+        $input.val(mockCity);
+        $icon.removeClass('loading');
+
+        // Trigger input event to show autocomplete
+        $input.trigger('input');
+      },
+      function(error) {
+        $icon.removeClass('loading');
+        alert('Unable to get your location. Please enter it manually.');
+        console.error('Geolocation error:', error);
+      }
+    );
+  } else {
+    alert('Geolocation is not supported by your browser.');
+  }
+}
+
+// Handle location selection from dropdown
+function handleLocationSelect($item) {
+  if ($item.hasClass('no-results')) {
+    return;
+  }
+
+  const locationText = $item.text();
+  const $input = $('.selected .location-input');
+  const $results = $('.selected .location-results');
+
+  // Set the input value
+  $input.val(locationText);
+
+  // Clear and hide results
+  $results.html('').removeClass('visible');
+
+  // Mark this location as selected
+  $item.addClass('selected');
+
+  // Store location for confirmation message
+  $('.selected.member').data('selected-location', locationText);
+
+  // Add location-selected state to trigger form reveal
+  $('.wrap').addClass('location-selected');
+
+  // Focus the name input after animation
+  setTimeout(function() {
+    $('.selected.member input[name="name"]').focus();
+  }, 700);
+}
+
 // ===== EXISTING MEMBER SELECTION FUNCTIONALITY =====
 
 $('.member').on('click', function(e){
@@ -191,26 +329,37 @@ $('.member').on('click', function(e){
 
 $('.deselect-member, .restart').on('click', function(e){
   $('.member').removeClass('selected');
-  $('.wrap').removeClass('member-selected date-selected slot-selected booking-complete');
+  $('.wrap').removeClass('member-selected date-selected location-selected booking-complete');
   e.preventDefault();
   e.stopPropagation();
 });
 
 $('.deselect-date').on('click', function(e){
-  $('.wrap').removeClass('date-selected slot-selected');
+  $('.wrap').removeClass('date-selected location-selected');
   $('.calendar *').removeClass('selected');
   e.preventDefault();
   e.stopPropagation();
 });
 
-$('.deselect-slot').on('click', function(e){
-  $('.wrap').removeClass('slot-selected');
-  $('.slots *').removeClass('selected');
+$('.deselect-location').on('click', function(e){
+  $('.wrap').removeClass('location-selected');
+  $('.location-results li').removeClass('selected');
+  $('.selected .location-input').val('');
   e.preventDefault();
   e.stopPropagation();
 });
 
 $('.form').on('submit', function(e){
+  // Get the selected location
+  const location = $('.selected.member').data('selected-location');
+  const $confirmMessage = $('.selected.member .confirm-message');
+
+  // Update confirmation message to include location
+  if (location) {
+    const originalText = 'Booking Complete!';
+    $confirmMessage.html(originalText + '<br><small style="font-size: 0.7em; opacity: 0.8;">Location: ' + location + '</small><span class="restart">Book Again?</span>');
+  }
+
   $('.wrap').toggleClass('booking-complete');
   e.preventDefault();
   e.stopPropagation();
@@ -218,7 +367,7 @@ $('.form').on('submit', function(e){
 
 function invokeCalendarListener(){
   $('.calendar td:not(.disabled)').on('click', function(e){
-    addSlots();
+    initLocationSearch();
     var date = $(this).html();
     var day = $(this).data('day');
     $('.date').html(day + ',  ' + date);
@@ -230,41 +379,6 @@ function invokeCalendarListener(){
     e.stopPropagation();
   });
 }
-
-
-function invokeSlotsListener(){
-  $('.slots li').on('click', function(e){
-    $(this).addClass('selected');
-    $('.wrap').addClass('slot-selected');
-    setTimeout(function(){
-      $('.selected.member input[name="name"]').focus();
-    }, 700);
-    e.preventDefault();
-    e.stopPropagation();
-  });
-}
-
-
-
-function addSlots(container){
-  
-  var number = Math.ceil(Math.random()*5 + 1);
-  var time = 7;
-  var endings = [':00', ':15', ':30', ':45'];
-  var timeDisplay = '';
-  var slots = ''
-  for(var i = 0; i < number; i++){
-    time += Math.ceil(Math.random()*3);
-    timeDisplay = time + endings[Math.floor(Math.random()*4)];
-    slots += '<li>'+timeDisplay+'</li>';
-  }
-  
-  $('.selected .slots').html(slots);
-  
-  invokeSlotsListener();
-  
-}
-
 
 
 function addCalendar(container){
