@@ -263,6 +263,7 @@ function handleGeolocation() {
   if (navigator.geolocation) {
     const $input = $('.selected .location-input');
     const $icon = $('.selected .location-icon');
+    const $results = $('.selected .location-results');
 
     // Visual feedback
     $icon.addClass('loading');
@@ -275,8 +276,20 @@ function handleGeolocation() {
         $input.val(mockCity);
         $icon.removeClass('loading');
 
-        // Trigger input event to show autocomplete
-        $input.trigger('input');
+        // Auto-select the location without showing dropdown
+        // Clear and hide any existing results
+        $results.html('').removeClass('visible');
+
+        // Store location for confirmation message
+        $('.selected.member').data('selected-location', mockCity);
+
+        // Add location-selected state to trigger form reveal
+        $('.wrap').addClass('location-selected');
+
+        // Focus the name input after animation
+        setTimeout(function() {
+          $('.selected.member input[name="name"]').focus();
+        }, 700);
       },
       function(error) {
         $icon.removeClass('loading');
