@@ -22,7 +22,7 @@ body {
   transform: translate3d(-50%, -50%, 0);
   color: hsl(241, 100%, 59%);
   width: 500rem;
-  height: 380rem;
+  height: 480rem;
   margin-top: -90px;
 }
 .wrap.member-selected .member:not(.selected) {
