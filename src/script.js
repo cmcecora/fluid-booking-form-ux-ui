@@ -132,6 +132,11 @@ function attachResultClickHandlers(){
     // and update its name to match the selected test
     const $member = $('.member').first();
 
+    // Store original name before first modification (so we can restore it later)
+    if (!$member.data('original-name')) {
+      $member.data('original-name', $member.find('.name').text());
+    }
+
     // Update the member's name
     $member.find('.name').text(testName);
 
@@ -328,6 +333,14 @@ $('.member').on('click', function(e){
 });
 
 $(document).on('click', '.deselect-member, .restart', function(e){
+  // Restore original test name if it was changed via search
+  const $firstMember = $('.member').first();
+  const originalName = $firstMember.data('original-name');
+  if (originalName) {
+    $firstMember.find('.name').text(originalName);
+    $firstMember.removeData('original-name');
+  }
+
   $('.member').removeClass('selected');
   $('.wrap').removeClass('member-selected date-selected location-selected booking-complete');
   e.preventDefault();
