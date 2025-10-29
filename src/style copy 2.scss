@@ -29,14 +29,11 @@ body{
 }
 
 .wrap{
-  position: absolute;
-  top: calc(50% - 25px);
-  left: 50%;
-  transform: translate3d(-50%,-50%,0);
-  color: $color;
-  width: 500rem;
-  height: 480rem; 
-  margin-top: -90px;
+  position: relative;        // or `static`
+  top: 0;
+  left: 50%;                 // optional; use margin auto if you want full-width
+  transform: translateX(-50%); // or drop the transform entirely and use `margin: 0 auto`
+  margin-top: 40rem;         // adjust as needed for breathing room
   &.member-selected{ 
     .member:not(.selected){
       opacity: 0;

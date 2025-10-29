@@ -16,14 +16,12 @@ body {
 }
 
 .wrap {
-  position: absolute;
-  top: calc(50% - 25px);
+  position: relative;
+  top: 0;
   left: 50%;
-  transform: translate3d(-50%, -50%, 0);
+  transform: translateX(-50%);
   color: hsl(241, 100%, 59%);
-  width: 500rem;
-  height: 480rem;
-  margin-top: -90px;
+  margin-top: 40rem;
 }
 .wrap.member-selected .member:not(.selected) {
   opacity: 0;
