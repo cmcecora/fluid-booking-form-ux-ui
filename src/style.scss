@@ -604,8 +604,8 @@ body{
   position: absolute;
   left: 15rem;
   top: 178rem;
-  width: 24rem;
-  height: 24rem;
+  width: 34rem;
+  height: 30rem;
   fill: rgba($grey, 0.7);
   opacity: 0;
   transition: opacity $short $ease-in-out, fill $short $ease-in-out;
@@ -697,23 +697,9 @@ body{
 
   // When card is selected
   &.selected{
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 24rem;
-    height: 24rem;
-    border-radius: 3rem;
-    box-shadow: none;
-    z-index: 10;
-
-    .center-photo{
-      width: 24rem;
-      height: 24rem;
-    }
-
-    .center-info{
-      display: none;
-    }
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   // When another card is selected
