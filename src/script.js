@@ -1031,6 +1031,7 @@ function addCalendarNavigation(container){
     var monthOffset = container.data('month-offset') || 0;
     if (monthOffset > 0) {
       addCalendar(container, monthOffset - 1);
+      triggerHapticFeedback('light');
     }
   });
 
@@ -1040,6 +1041,231 @@ function addCalendarNavigation(container){
     var monthOffset = container.data('month-offset') || 0;
     if (monthOffset < 4) {
       addCalendar(container, monthOffset + 1);
+      triggerHapticFeedback('light');
+    }
+  });
+
+  // Add swipe gesture support for mobile
+  addCalendarSwipeGestures(container);
+}
+
+// ============================================================================
+// MOBILE ENHANCEMENTS: Swipe Gestures & Haptic Feedback
+// ============================================================================
+
+/**
+ * Haptic Feedback - Provides tactile feedback on touch devices
+ * Uses the Vibration API (supported on most mobile browsers)
+ */
+function triggerHapticFeedback(type = 'light') {
+  // Check if vibration API is available
+  if (!navigator.vibrate) return;
+
+  // Different vibration patterns for different feedback types
+  const patterns = {
+    light: 10,      // Light tap (selection, navigation)
+    medium: 20,     // Medium feedback (state change)
+    success: [10, 50, 10],  // Success pattern (form submission)
+    error: [50, 100, 50]    // Error pattern
+  };
+
+  const pattern = patterns[type] || patterns.light;
+  navigator.vibrate(pattern);
+}
+
+/**
+ * Swipe Gesture Handler for Calendar
+ * Allows swiping left/right to change months
+ */
+function addCalendarSwipeGestures(container) {
+  // Only add swipe gestures on touch devices
+  if (!('ontouchstart' in window)) return;
+
+  const calendarTable = container.find('table');
+  if (!calendarTable.length) return;
+
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchEndX = 0;
+  let touchEndY = 0;
+  const minSwipeDistance = 50; // Minimum distance for a swipe (px)
+
+  calendarTable.on('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  });
+
+  calendarTable.on('touchend', function(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
+    handleCalendarSwipe();
+  });
+
+  function handleCalendarSwipe() {
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    // Ensure horizontal swipe (not vertical scroll)
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (Math.abs(deltaX) > minSwipeDistance) {
+        const monthOffset = container.data('month-offset') || 0;
+
+        // Swipe left = next month
+        if (deltaX < 0 && monthOffset < 4) {
+          addCalendar(container, monthOffset + 1);
+          triggerHapticFeedback('light');
+        }
+        // Swipe right = previous month
+        else if (deltaX > 0 && monthOffset > 0) {
+          addCalendar(container, monthOffset - 1);
+          triggerHapticFeedback('light');
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Swipe-to-Dismiss Handler for Bottom Sheet Form
+ * Allows swiping down to close the booking form on mobile
+ */
+function addBottomSheetSwipeGesture() {
+  // Only add on touch devices and mobile viewports
+  if (!('ontouchstart' in window) || window.innerWidth >= 768) return;
+
+  const form = $('.form');
+  const backdrop = $('.form-backdrop, body');
+  if (!form.length) return;
+
+  let touchStartY = 0;
+  let touchEndY = 0;
+  let isDragging = false;
+  const minSwipeDistance = 100; // Minimum distance to trigger close (px)
+  const dragThreshold = 10; // Threshold to start tracking drag
+
+  // Touch start
+  form.on('touchstart', function(e) {
+    // Only trigger from the drag handle area or top of form
+    const touch = e.changedTouches[0];
+    const formTop = form.offset().top;
+    const touchY = touch.pageY;
+
+    if (touchY - formTop < 60) { // First 60px of form
+      touchStartY = touch.screenY;
+      isDragging = false;
+    }
+  });
+
+  // Touch move - visual feedback
+  form.on('touchmove', function(e) {
+    if (touchStartY === 0) return;
+
+    const touch = e.changedTouches[0];
+    const deltaY = touch.screenY - touchStartY;
+
+    // Only track downward swipes
+    if (deltaY > dragThreshold) {
+      isDragging = true;
+
+      // Prevent default scroll
+      if (form.scrollTop() === 0) {
+        e.preventDefault();
+
+        // Visual feedback: follow finger (rubber band effect)
+        const dragDistance = Math.min(deltaY * 0.5, 200); // Dampen movement
+        form.css('transform', `translateY(${dragDistance}px)`);
+      }
+    }
+  });
+
+  // Touch end - trigger action
+  form.on('touchend', function(e) {
+    if (!isDragging || touchStartY === 0) {
+      form.css('transform', '');
+      touchStartY = 0;
+      return;
+    }
+
+    touchEndY = e.changedTouches[0].screenY;
+    const deltaY = touchEndY - touchStartY;
+
+    // If swiped down enough, close the form
+    if (deltaY > minSwipeDistance) {
+      triggerHapticFeedback('medium');
+      // Trigger the deselect button click to properly close
+      $('.deselect-center').trigger('click');
+    }
+
+    // Reset
+    form.css('transform', '');
+    touchStartY = 0;
+    isDragging = false;
+  });
+
+  // Also allow tapping backdrop to close (mobile UX pattern)
+  backdrop.on('click', function(e) {
+    if ($(e.target).hasClass('form-backdrop') || $(e.target).is('body')) {
+      if ($('.wrap').hasClass('center-selected')) {
+        triggerHapticFeedback('light');
+        $('.deselect-center').trigger('click');
+      }
     }
   });
 }
+
+/**
+ * Add haptic feedback to all interactive elements
+ */
+function enhanceInteractionsWithHaptics() {
+  // Member selection
+  $(document).on('click', '.member', function() {
+    triggerHapticFeedback('light');
+  });
+
+  // Calendar date selection
+  $(document).on('click', '.calendar td:not(.disabled)', function() {
+    triggerHapticFeedback('light');
+  });
+
+  // Location selection
+  $(document).on('click', '.location-results li:not(.no-results)', function() {
+    triggerHapticFeedback('light');
+  });
+
+  // Testing center selection
+  $(document).on('click', '.center-card', function() {
+    triggerHapticFeedback('light');
+  });
+
+  // Form submission
+  $(document).on('submit', '.form', function() {
+    triggerHapticFeedback('success');
+  });
+
+  // Deselect buttons
+  $(document).on('click', '[class*="deselect-"]', function() {
+    triggerHapticFeedback('light');
+  });
+
+  // Navigation arrows
+  $(document).on('click', '.calendar-nav', function() {
+    triggerHapticFeedback('light');
+  });
+}
+
+// Initialize mobile enhancements when DOM is ready
+$(document).ready(function() {
+  // Add swipe gesture for bottom sheet form
+  // (needs to run after form is visible, so we'll call it with a delay or on state change)
+  setTimeout(addBottomSheetSwipeGesture, 1000);
+
+  // Re-initialize on state changes
+  $('.wrap').on('classChange', function() {
+    addBottomSheetSwipeGesture();
+  });
+
+  // Enhance all interactions with haptic feedback
+  enhanceInteractionsWithHaptics();
+
+  console.log('Mobile enhancements initialized: Swipe gestures & haptic feedback enabled');
+});

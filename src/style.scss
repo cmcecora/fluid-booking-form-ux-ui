@@ -6,13 +6,55 @@ $accent: hsl( ($hue + $distance) , 100%, 50%);
 $grey: #ddd;
 $sans: 'Alegreya Sans', sans-serif;
 $ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1.000);
+
+// Animation timing - desktop
 $short: 300ms;
 $mid: 500ms;
 $long: 800ms;
 
+// Animation timing - mobile (optimized for performance)
+$short-mobile: 200ms;
+$mid-mobile: 300ms;
+$long-mobile: 400ms;
+
+// Responsive breakpoints
+$breakpoint-xs: 320px;      // Small phones
+$breakpoint-sm: 375px;      // Standard phones (iPhone SE, etc)
+$breakpoint-md: 428px;      // Large phones (iPhone Pro Max, etc)
+$breakpoint-tablet: 768px;  // Tablets - switches to desktop layout
+$breakpoint-lg: 1024px;     // Desktop
+$breakpoint-xl: 1440px;     // Large desktop
+
+// Breakpoint mixins for easier media queries
+@mixin mobile {
+  @media (max-width: #{$breakpoint-tablet - 1}) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (min-width: #{$breakpoint-tablet}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$breakpoint-lg}) {
+    @content;
+  }
+}
+
 
 html{
-  font-size: 1.3px;
+  // Responsive font sizing - scales with viewport on mobile, fixed on desktop
+  // Mobile: scales from 0.9px at 320px to 1.3px at 768px
+  // Desktop: maintains 1.3px for consistent rem calculations
+  font-size: clamp(0.9px, 0.4vw, 1.3px);
+
+  @include tablet-up {
+    font-size: 1.3px; // Desktop maintains original sizing
+  }
+
   *{
     box-sizing: border-box;
   }
@@ -21,22 +63,59 @@ html{
 body{
   width: 100vw;
   height: 100vh;
+
+  // Safe area support for notched devices (iPhone X+, etc)
+  min-height: 100vh;
+  min-height: -webkit-fill-available; // iOS Safari support
+  padding-top: env(safe-area-inset-top);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+
   background: linear-gradient(60deg, darken(adjust-hue($color,5),10%), lighten(adjust-hue($color,-5), 10%));
   background: white;
   font-family: $sans;
   font-size: 40rem;
   overflow-y: auto;
+
+  // Prevent overscroll/rubber band effect on mobile
+  overscroll-behavior: contain;
+
+  // Improve text rendering on mobile
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @include mobile {
+    font-size: clamp(20px, 5vw, 40rem); // Responsive body font on mobile
+  }
 }
 
 .wrap{
-  position: absolute;
-  top: calc(50% - 25px);
-  left: 50%;
-  transform: translate3d(-50%,-50%,0);
   color: $color;
-  width: 500rem;
-  height: 480rem; 
-  margin-top: -90px;
+
+  // MOBILE LAYOUT: Flexible vertical flow
+  @include mobile {
+    position: relative;
+    width: 100%;
+    max-width: 100vw;
+    min-height: 100vh;
+    padding: 20rem;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    transform: none;
+  }
+
+  // DESKTOP LAYOUT: Preserve original absolute positioning
+  @include tablet-up {
+    position: absolute;
+    top: calc(50% - 25px);
+    left: 50%;
+    transform: translate3d(-50%,-50%,0);
+    width: 500rem;
+    height: 480rem;
+    margin-top: -90px;
+  }
   &.member-selected{ 
     .member:not(.selected){
       opacity: 0;
@@ -184,25 +263,60 @@ body{
   text-align: center;
   font-weight: 300;
   color: $color;
-    > *{
-      transition: opacity $short $ease-in-out;
+
+  @include mobile {
+    margin-bottom: 20rem;
+    padding: 0 10rem;
+  }
+
+  .first {
+    // Responsive typography for instruction text
+    @include mobile {
+      font-size: clamp(24px, 5vw, 40rem) !important;
+      line-height: 1.4;
     }
+  }
+
+  > *{
+    transition: opacity $short $ease-in-out;
+
+    @include mobile {
+      transition-duration: $short-mobile;
+    }
+  }
 }
 
 .staff{
   position: relative;
   width: 100%;
-  height: 380rem;
-  max-height: 380rem;
   overflow-y: auto;
   overflow-x: hidden;
 
   // Performance optimizations
   will-change: scroll-position;
 
+  // MOBILE: Flexible height based on viewport
+  @include mobile {
+    height: auto;
+    max-height: 70vh; // Allow more content to be visible
+    min-height: 300px;
+    // Enable momentum scrolling on iOS
+    -webkit-overflow-scrolling: touch;
+  }
+
+  // DESKTOP: Fixed height
+  @include tablet-up {
+    height: 380rem;
+    max-height: 380rem;
+  }
+
   // Custom scrollbar styling
   &::-webkit-scrollbar{
     width: 8rem;
+
+    @include mobile {
+      width: 4rem; // Thinner scrollbar on mobile
+    }
   }
 
   &::-webkit-scrollbar-track{
@@ -221,7 +335,14 @@ body{
 
   // Lock scroll when member is selected
   .wrap.member-selected & {
-    overflow: hidden;
+    @include tablet-up {
+      overflow: hidden;
+    }
+
+    @include mobile {
+      // On mobile, keep scrolling but hide unselected members
+      overflow-y: auto;
+    }
   }
 }
 
@@ -231,43 +352,132 @@ body{
   visibility: hidden;
 }
 .deselect-member, .deselect-date, .deselect-location, .deselect-center{
-  position: absolute;
   color: $grey;
-  top: 35rem;
-  right: 25rem;
   z-index: 10;
   display: inline-block;
-  font-size: 20rem;
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  transition: opacity $short $ease-in-out;
+  transition: opacity $short $ease-in-out, color $short $ease-in-out, transform $short $ease-in-out;
   font-weight: 100;
+
+  // MOBILE: Larger touch targets, relative positioning
+  @include mobile {
+    position: relative;
+    font-size: clamp(14px, 3.5vw, 18px);
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba($grey, 0.15);
+    border-radius: 20px;
+    font-weight: 500;
+    margin: 8px 0;
+
+    // Touch optimization
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+
+    &:active {
+      transform: scale(0.95);
+      background: rgba($grey, 0.25);
+      color: darken($grey, 20%);
+    }
+  }
+
+  // DESKTOP: Absolute positioning
+  @include tablet-up {
+    position: absolute;
+    top: 35rem;
+    right: 25rem;
+    font-size: 20rem;
+
+    &:hover {
+      color: darken($grey, 20%);
+    }
+  }
 }
+
 .deselect-date{
-  top: 95rem;
+  @include tablet-up {
+    top: 95rem;
+  }
 }
+
 .deselect-location{
-  top: 145rem;
+  @include tablet-up {
+    top: 145rem;
+  }
 }
+
 .deselect-center{
-  top: 195rem;
+  @include mobile {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 12px);
+    right: 12px;
+    z-index: 1001; // Above bottom sheet
+    background: rgba(white, 0.95);
+    color: $color;
+    box-shadow: 0 2px 12px rgba($color, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 10px 18px;
+    font-weight: 600;
+
+    &:active {
+      background: rgba(white, 0.9);
+    }
+  }
+
+  @include tablet-up {
+    top: 195rem;
+  }
 }
 
 .member{
   background: white;
   width: 100%;
   padding: 15rem;
-  height: 85rem;
   cursor: pointer;
   position: relative;
   margin-bottom: 15rem;
-  transition: opacity $long $ease-in-out, transform $mid $ease-in-out, height $short $ease-in-out, box-shadow $long $ease-in-out;
-  box-shadow: 5rem 5rem 20rem rgba($color, 0.15);
   overflow: hidden;
 
   // Performance optimization
   contain: layout style;
+
+  // MOBILE: Enhanced touch targets and responsive sizing
+  @include mobile {
+    height: auto;
+    min-height: 70px; // Ensure minimum 44px touch target + padding
+    padding: 16px; // Use px for consistent touch targets
+    margin-bottom: 12px;
+    border-radius: 8px;
+
+    // Touch interaction optimization
+    touch-action: manipulation; // Prevents double-tap zoom
+    -webkit-tap-highlight-color: rgba($color, 0.1);
+
+    // Faster transitions for mobile
+    transition: opacity $mid-mobile $ease-in-out, transform $short-mobile $ease-in-out, box-shadow $mid-mobile $ease-in-out;
+    box-shadow: 3rem 3rem 15rem rgba($color, 0.12);
+
+    // Touch feedback
+    &:active {
+      transform: scale(0.98);
+      box-shadow: 2rem 2rem 10rem rgba($color, 0.1);
+    }
+  }
+
+  // DESKTOP: Original behavior
+  @include tablet-up {
+    height: 85rem;
+    transition: opacity $long $ease-in-out, transform $mid $ease-in-out, height $short $ease-in-out, box-shadow $long $ease-in-out;
+    box-shadow: 5rem 5rem 20rem rgba($color, 0.15);
+  }
 
   .name{
     display: inline-block;
@@ -278,7 +488,16 @@ body{
     transition: transform $mid $ease-in-out;
     font-weight: 100;
     font-size: 35rem;
+
+    @include mobile {
+      font-size: clamp(18px, 4vw, 35rem);
+      line-height: 1.3;
+      margin-left: 70px; // Use px for consistent spacing with avatar
+      padding-right: 10px;
+      transition-duration: $mid-mobile;
+    }
   }
+
   .avatar{
     transform-origin: 100% 0%;
     width: 60rem;
@@ -293,6 +512,16 @@ body{
     background-color: rgba($grey, 0.2);
     filter: saturate(50%) contrast(120%);
     transition: transform $mid $ease-in-out, opacity $mid $ease-in-out;
+
+    @include mobile {
+      width: 50px; // Larger for better visibility on mobile
+      height: 50px;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      transition-duration: $mid-mobile;
+    }
+
     &:after{
       content: '';
       display: block;
@@ -313,32 +542,69 @@ body{
         display: none;
       }
     }
-
   }
 
   &.selected{
-    position: fixed;
-    top: calc(50% - 240px + 25px);
-    left: 50%;
-    transform: translateX(-50%) perspective(100rem) translatez(0rem);
-    height: 500rem;
-    width: 500rem;
     cursor: default;
     z-index: 1000;
-    box-shadow: 10rem 10rem 60rem rgba(darken($color,20%), 0.1);
-    transition: opacity $short $ease-in-out, transform $long $ease-in-out, height $mid $ease-in-out, box-shadow $long $ease-in-out, width $mid $ease-in-out, top $long $ease-in-out, left $long $ease-in-out;
+
     .deselect-member{
       opacity: 1;
       pointer-events: auto;
     }
-    .name, .avatar{
-      transform: scale(0.7) translatex(-30rem);
+
+    // MOBILE: Different selected state (stays in flow, expands vertically)
+    @include mobile {
+      position: relative;
+      width: 100%;
+      min-height: auto;
+      margin-bottom: 20px;
+      box-shadow: 5rem 5rem 30rem rgba($color, 0.2);
+      transform: none;
+
+      .name {
+        margin-left: 70px;
+        font-size: clamp(20px, 4.5vw, 35rem);
+      }
+
+      .avatar {
+        width: 50px;
+        height: 50px;
+        top: 16px;
+        left: 12px;
+        transform: none;
+      }
+
+      .calendar{
+        opacity: 1;
+        height: auto;
+        min-height: 300px;
+        transform: none;
+        transition: opacity $mid-mobile $ease-in-out;
+      }
     }
-    .calendar{
-      height: 340rem;
-      transform: translatey(0rem);
-      transition: opacity $mid $ease-in-out, transform $mid $ease-in-out, height $long $ease-in-out;
-      opacity: 1;
+
+    // DESKTOP: Original fixed/centered behavior
+    @include tablet-up {
+      position: fixed;
+      top: calc(50% - 240px + 25px);
+      left: 50%;
+      transform: translateX(-50%) perspective(100rem) translatez(0rem);
+      height: 500rem;
+      width: 500rem;
+      box-shadow: 10rem 10rem 60rem rgba(darken($color,20%), 0.1);
+      transition: opacity $short $ease-in-out, transform $long $ease-in-out, height $mid $ease-in-out, box-shadow $long $ease-in-out, width $mid $ease-in-out, top $long $ease-in-out, left $long $ease-in-out;
+
+      .name, .avatar{
+        transform: scale(0.7) translatex(-30rem);
+      }
+
+      .calendar{
+        height: 340rem;
+        transform: translatey(0rem);
+        transition: opacity $mid $ease-in-out, transform $mid $ease-in-out, height $long $ease-in-out;
+        opacity: 1;
+      }
     }
   }
 }
@@ -371,6 +637,13 @@ body{
   transition: opacity $short $ease-in-out, transform $short $ease-in-out, height $short $ease-in-out;
   font-size: 17rem;
   border-top: 1px solid rgba($grey,0.8);
+
+  @include mobile {
+    font-size: clamp(14px, 3vw, 17rem);
+    transition-duration: $short-mobile;
+    border-top: 2px solid rgba($grey,0.8); // Slightly thicker for mobile
+  }
+
   .date, .month, .year{
     position: absolute;
     top: 15rem;
@@ -382,49 +655,123 @@ body{
     transform-origin: 100% 0%;
     transform: translateX(0) scale(1);
     z-index: 5;
+
+    @include mobile {
+      font-size: clamp(24px, 5.5vw, 50rem); // Responsive heading
+      top: 12px;
+      left: 12px;
+      transition-duration: $short-mobile;
+    }
   }
+
   .year{
     transform: translateX(80rem) scale(1);
+
+    @include mobile {
+      transform: translateX(clamp(40px, 10vw, 80rem)) scale(1);
+    }
   }
+
   .date{
     opacity: 0;
     transform-origin: 0% 0%;
     transform: translateX(-100rem) scale(1);
+
+    @include mobile {
+      transform: translateX(clamp(-60px, -12vw, -100rem)) scale(1);
+    }
   }
+
   table{
     width: 100%;
     text-align: center;
     transition: transform $mid $ease-in-out;
     transform: translatey(80rem);
     border-top: 1px solid white;
-    
-    
+
+    @include mobile {
+      transition-duration: $mid-mobile;
+      transform: translateY(clamp(50px, 12vw, 80rem));
+      margin-top: 10px;
+    }
+
     td, th{
       width: 13%;
       padding: 10rem;
       cursor: pointer;
       font-weight: 200;
 
+      // MOBILE: Enhanced touch targets
+      @include mobile {
+        padding: 12px 8px; // Minimum 44px touch target height
+        min-height: 44px;
+        min-width: 44px;
+        font-size: clamp(14px, 3.5vw, 18px);
+
+        // Touch interaction optimization
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba($color, 0.15);
+
+        // Touch feedback
+        &:active:not(.disabled) {
+          background: rgba($color, 0.15);
+          transform: scale(0.95);
+        }
+      }
+
+      @include tablet-up {
+        padding: 10rem;
+      }
+
       &.today{
         background: $color;
         color: white;
+        font-weight: 400;
+
+        @include mobile {
+          border-radius: 6px;
+        }
       }
+
       &.disabled{
         color: $grey;
         pointer-events: none;
+        opacity: 0.5;
+
         &.today{
           background: $grey;
           color: white;
         }
       }
+
       &.selected{
-        transform: perspective(100rem) translateZ(80rem);
-        transition: opacity $long $ease-in-out, transform $long $ease-in-out;
         opacity: 0;
+
+        @include mobile {
+          transform: scale(0.9);
+          transition: opacity $mid-mobile $ease-in-out, transform $mid-mobile $ease-in-out;
+        }
+
+        @include tablet-up {
+          transform: perspective(100rem) translateZ(80rem);
+          transition: opacity $long $ease-in-out, transform $long $ease-in-out;
+        }
       }
     }
+
     th{
       padding-top: 20rem;
+      font-weight: 400;
+      color: darken($grey, 15%);
+      pointer-events: none;
+
+      @include mobile {
+        padding-top: 12px;
+        padding-bottom: 8px;
+        font-size: clamp(12px, 3vw, 16px);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
     }
   }
 }
@@ -439,6 +786,13 @@ body{
   opacity: 0;
   transition: opacity $short $ease-in-out, fill $short $ease-in-out;
   z-index: 1;
+
+  @include mobile {
+    width: 20px;
+    height: 20px;
+    left: 12px;
+    top: 12px;
+  }
 }
 
 .calendar-nav{
@@ -451,36 +805,92 @@ body{
   opacity: 0.7;
   transition: opacity $short $ease-in-out, fill $short $ease-in-out, transform $short $ease-in-out;
   z-index: 2;
-  
-  &:hover{
+
+  // MOBILE: Larger touch targets
+  @include mobile {
+    width: 44px; // Minimum touch target
+    height: 44px;
+    padding: 10px; // Increase touchable area
+    top: 8px;
     opacity: 1;
-    transform: scale(1.2);
+
+    // Touch optimization
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba($color, 0.15);
+
+    // Touch feedback
+    &:active {
+      transform: scale(0.9);
+      opacity: 0.8;
+    }
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
   }
-  
+
+  @include tablet-up {
+    &:hover{
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
   &.calendar-prev{
     left: 340rem;
+
+    @include mobile {
+      right: 56px; // Stack nav buttons on the right for mobile
+      left: auto;
+    }
   }
-  
+
   &.calendar-next{
     right: 15rem;
+
+    @include mobile {
+      right: 8px;
+    }
   }
 }
 
 // Location Search Styles
 .location-search{
-  position: absolute;
-  left: 15rem;
-  width: calc(100% - 20rem);
-  top: 125rem;
   opacity: 0;
   transform: translatey(50%);
   pointer-events: none;
   transition: opacity $short $ease-in-out, transform $mid $ease-in-out;
 
+  // MOBILE: Relative positioning in flow
+  @include mobile {
+    position: relative;
+    width: 100%;
+    margin-top: 20px;
+    transform: none;
+    transition-duration: $short-mobile;
+
+    &.active {
+      transform: none;
+    }
+  }
+
+  // DESKTOP: Absolute positioning
+  @include tablet-up {
+    position: absolute;
+    left: 15rem;
+    width: calc(100% - 20rem);
+    top: 125rem;
+  }
+
   .search-wrapper{
     position: relative;
     width: 100%;
     margin-bottom: 10rem;
+
+    @include mobile {
+      margin-bottom: 12px;
+    }
   }
 
   .location-icon{
@@ -495,9 +905,32 @@ body{
     transition: fill $short $ease-in-out, transform $short $ease-in-out;
     z-index: 2;
 
-    &:hover{
-      fill: $color;
-      transform: translateY(-50%) scale(1.1);
+    // MOBILE: Larger touch target
+    @include mobile {
+      width: 44px; // Minimum touch target
+      height: 44px;
+      padding: 10px;
+      left: 0;
+
+      // Touch optimization
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba($color, 0.15);
+
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      &:active {
+        transform: translateY(-50%) scale(0.95);
+      }
+    }
+
+    @include tablet-up {
+      &:hover{
+        fill: $color;
+        transform: translateY(-50%) scale(1.1);
+      }
     }
 
     &.loading{
@@ -508,7 +941,6 @@ body{
   .location-input{
     width: 100%;
     padding: 10rem 20rem 10rem 50rem;
-    font-size: 25rem;
     font-weight: 100;
     border: none;
     border-bottom: 1px solid rgba($grey, 0.3);
@@ -518,6 +950,21 @@ body{
     font-family: $sans;
     transition: border-color $short $ease-in-out;
 
+    // MOBILE: Enhanced input styling
+    @include mobile {
+      font-size: max(16px, 25rem); // Minimum 16px prevents iOS zoom
+      padding: 14px 20px 14px 54px;
+      border-bottom: 2px solid rgba($grey, 0.3);
+      border-radius: 8px 8px 0 0;
+
+      // Touch optimization
+      touch-action: manipulation;
+    }
+
+    @include tablet-up {
+      font-size: 25rem;
+    }
+
     &::placeholder{
       color: rgba($color, 0.4);
       font-weight: 100;
@@ -525,6 +972,10 @@ body{
 
     &:focus{
       border-bottom-color: $color;
+
+      @include mobile {
+        border-bottom-width: 3px;
+      }
     }
   }
 
@@ -536,9 +987,27 @@ body{
     overflow: hidden;
     transition: max-height $short $ease-in-out;
 
-    &.visible{
-      max-height: 300rem;
-      overflow-y: auto;
+    // MOBILE: Limit height to prevent overwhelming screen
+    @include mobile {
+      max-height: 0;
+      background: white;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 4px 12px rgba($color, 0.15);
+
+      // Enable smooth scrolling on iOS
+      -webkit-overflow-scrolling: touch;
+
+      &.visible{
+        max-height: 40vh; // Don't take too much screen space
+        overflow-y: auto;
+      }
+    }
+
+    @include tablet-up {
+      &.visible{
+        max-height: 300rem;
+        overflow-y: auto;
+      }
     }
 
     li{
@@ -550,21 +1019,46 @@ body{
       cursor: pointer;
       border-bottom: 1px solid rgba($grey, 0.15);
       opacity: 0;
-      transform: translateY(10rem) perspective(100rem) translateZ(20rem);
       transition: all $mid $ease-in-out, background-color $short $ease-in-out;
 
-      &:hover{
-        background: rgba($color, 0.05);
-        padding-left: 25rem;
+      // MOBILE: Enhanced touch targets
+      @include mobile {
+        padding: 16px 20px;
+        min-height: 54px; // Comfortable touch target
+        font-size: clamp(16px, 4vw, 22rem);
+        opacity: 0;
+        transform: translateY(10px);
+
+        // Touch optimization
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba($color, 0.1);
+
+        &:active {
+          background: rgba($color, 0.1);
+          transform: translateY(0);
+        }
+      }
+
+      @include tablet-up {
+        transform: translateY(10rem) perspective(100rem) translateZ(20rem);
+
+        &:hover{
+          background: rgba($color, 0.05);
+          padding-left: 25rem;
+        }
       }
 
       &.no-results{
         color: $grey;
         text-align: center;
         cursor: default;
+
         &:hover{
           background: white;
-          padding-left: 20rem;
+
+          @include tablet-up {
+            padding-left: 20rem;
+          }
         }
       }
 
@@ -575,7 +1069,15 @@ body{
 
     &.visible li{
       opacity: 1;
-      transform: translateY(0) perspective(100rem) translateZ(0);
+
+      @include mobile {
+        transform: translateY(0);
+        transition-duration: $mid-mobile;
+      }
+
+      @include tablet-up {
+        transform: translateY(0) perspective(100rem) translateZ(0);
+      }
 
       // Staggered entrance animation
       &:nth-child(1){transition-delay: $mid * 0/6;}
@@ -601,11 +1103,6 @@ body{
 
 // Testing Center Section Styles
 .center-icon{
-  position: absolute;
-  left: 15rem;
-  top: 178rem;
-  width: 34rem;
-  height: 30rem;
   fill: rgba($grey, 0.7);
   opacity: 0;
   transition: opacity $short $ease-in-out, fill $short $ease-in-out;
@@ -613,17 +1110,49 @@ body{
   border-radius: 3rem;
   background-size: cover;
   background-position: center;
+
+  // MOBILE: Relative positioning in flow
+  @include mobile {
+    position: relative;
+    width: 30px;
+    height: 26px;
+    display: inline-block;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+
+  // DESKTOP: Absolute positioning
+  @include tablet-up {
+    position: absolute;
+    left: 15rem;
+    top: 178rem;
+    width: 34rem;
+    height: 30rem;
+  }
 }
 
 .testing-center-section{
-  position: absolute;
-  left: 15rem;
-  width: calc(100% - 30rem);
-  top: 175rem;
   opacity: 0;
-  transform: translateX(100%);
   pointer-events: none;
   transition: opacity $long $ease-in-out, transform $long $ease-in-out;
+
+  // MOBILE: Relative positioning in flow
+  @include mobile {
+    position: relative;
+    width: 100%;
+    margin-top: 20px;
+    transform: none;
+    transition-duration: $mid-mobile;
+  }
+
+  // DESKTOP: Absolute positioning with slide-in animation
+  @include tablet-up {
+    position: absolute;
+    left: 15rem;
+    width: calc(100% - 30rem);
+    top: 175rem;
+    transform: translateX(100%);
+  }
 
   .testing-center-heading{
     font-size: 20rem;
@@ -631,18 +1160,36 @@ body{
     color: $grey;
     margin-bottom: 15rem;
     text-align: left;
+
+    @include mobile {
+      font-size: clamp(18px, 4vw, 20rem);
+      margin-bottom: 16px;
+      font-weight: 400;
+    }
   }
 
   .testing-center-cards{
     display: flex;
     gap: 15rem;
     justify-content: flex-start;
+
+    // MOBILE: Single column layout
+    @include mobile {
+      flex-direction: column;
+      gap: 16px;
+      align-items: stretch; // Cards take full width
+    }
+
+    // DESKTOP: Horizontal layout
+    @include tablet-up {
+      flex-direction: row;
+      flex-wrap: nowrap;
+    }
   }
 }
 
 .center-card{
   background: white;
-  width: 145rem;
   border-radius: 5rem;
   overflow: hidden;
   cursor: pointer;
@@ -650,21 +1197,58 @@ body{
   transition: transform $short $ease-in-out, box-shadow $short $ease-in-out, opacity $mid $ease-in-out;
   position: relative;
 
-  &:hover{
-    box-shadow: 5rem 5rem 25rem rgba($color, 0.2);
-    transform: scale(1.02);
+  // MOBILE: Full width, enhanced touch targets
+  @include mobile {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 12px;
+    min-height: 120px;
+    transition-duration: $short-mobile;
+
+    // Touch optimization
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba($color, 0.1);
+
+    // Touch feedback
+    &:active {
+      transform: scale(0.98);
+      box-shadow: 2rem 2rem 10rem rgba($color, 0.1);
+    }
+  }
+
+  // DESKTOP: Fixed width
+  @include tablet-up {
+    width: 145rem;
+    flex-shrink: 0;
+
+    &:hover{
+      box-shadow: 5rem 5rem 25rem rgba($color, 0.2);
+      transform: scale(1.02);
+    }
   }
 
   .center-photo{
     width: 100%;
-    height: 60rem;
     background-size: cover;
     background-position: center;
     background-color: rgba($grey, 0.2);
+
+    @include mobile {
+      height: 140px; // Larger image on mobile for better visibility
+      aspect-ratio: 16 / 9;
+    }
+
+    @include tablet-up {
+      height: 60rem;
+    }
   }
 
   .center-info{
     padding: 12rem;
+
+    @include mobile {
+      padding: 16px;
+    }
   }
 
   .center-name{
@@ -673,6 +1257,12 @@ body{
     color: $color;
     margin-bottom: 6rem;
     line-height: 1.2;
+
+    @include mobile {
+      font-size: clamp(18px, 4vw, 20rem);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
   }
 
   .center-distance{
@@ -684,6 +1274,14 @@ body{
     padding: 3rem 8rem;
     border-radius: 10rem;
     margin-bottom: 8rem;
+
+    @include mobile {
+      font-size: clamp(13px, 3vw, 15rem);
+      padding: 6px 12px;
+      border-radius: 16px;
+      margin-bottom: 10px;
+      font-weight: 400;
+    }
   }
 
   .center-address{
@@ -693,6 +1291,13 @@ body{
     line-height: 1.3;
     max-height: 40rem;
     overflow: hidden;
+
+    @include mobile {
+      font-size: clamp(14px, 3.5vw, 16rem);
+      max-height: none; // Show full address on mobile
+      line-height: 1.4;
+      font-weight: 300;
+    }
   }
 
   // When card is selected
@@ -712,9 +1317,6 @@ body{
 
 // Selected center name display
 .center-name-display{
-  position: absolute;
-  left: 61rem;
-  top: 184rem;
   font-size: 25rem;
   font-weight: 100;
   color: $color;
@@ -722,21 +1324,116 @@ body{
   transition: opacity $mid $ease-in-out;
   line-height: 24rem;
 
+  // MOBILE: Relative in flow with icon
+  @include mobile {
+    position: relative;
+    display: inline-block;
+    font-size: clamp(18px, 4vw, 25rem);
+    line-height: 1.3;
+    vertical-align: middle;
+    margin-top: 20px;
+    width: calc(100% - 50px);
+  }
+
+  // DESKTOP: Absolute positioning
+  @include tablet-up {
+    position: absolute;
+    left: 61rem;
+    top: 184rem;
+  }
+
   .wrap.center-selected & {
     opacity: 1;
   }
 }
 
+// Bottom sheet backdrop (mobile only)
+.form-backdrop{
+  @include mobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999;
+    transition: opacity $mid-mobile $ease-in-out;
+
+    .wrap.center-selected & {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  @include tablet-up {
+    display: none;
+  }
+}
+
 .form{
-  position: absolute;
-  left: 15rem;
-  width: 460rem;
-  height: 320rem;
-  top: 240rem;
   opacity: 0;
-  transform: translatey(50%);
   pointer-events: none;
   transition: opacity $short $ease-in-out, transform $mid $ease-in-out;
+
+  // MOBILE: Bottom sheet pattern
+  @include mobile {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: auto;
+    max-height: 85vh;
+    background: white;
+    border-radius: 24px 24px 0 0;
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transform: translateY(100%);
+    transition-duration: $mid-mobile;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    // Drag handle at top (iOS style)
+    &::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 4px;
+      background: rgba($grey, 0.5);
+      border-radius: 2px;
+      z-index: 3;
+    }
+
+    // Remove desktop decorative elements
+    &::after {
+      display: none;
+    }
+
+    .wrap.center-selected & {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+  }
+
+  // DESKTOP: Absolute positioning (original)
+  @include tablet-up {
+    position: absolute;
+    left: 15rem;
+    width: 460rem;
+    height: 320rem;
+    top: 240rem;
+    transform: translatey(50%);
+  }
+  // Desktop decorative elements (side bars)
   &:before, &:after{
     content: '';
     position: absolute;
@@ -746,67 +1443,151 @@ body{
     height: 100%;
     background: white;
     transition: transform $long $ease-in-out;
+
+    @include mobile {
+      display: none; // Hide on mobile (part of bottom sheet)
+    }
   }
+
   &:before{
     left: 0;
     transform-origin: 0% 50%;
   }
+
   &:after{
     right: 0;
     transform-origin: 100% 50%;
   }
+
   label{
     display: block;
     font-size: 15rem;
     font-weight: 300;
     color: $grey;
     margin-left: 50rem;
+
+    @include mobile {
+      font-size: clamp(14px, 3.5vw, 15rem);
+      margin-left: 0;
+      margin-bottom: 6px;
+      font-weight: 400;
+    }
   }
+
   input[type="text"], input[type="email"]{
-    font-size: 25rem;
     font-weight: 100;
     margin-bottom: 15rem;
     border: none;
     border-bottom: 1px solid $color;
     width: 100%;
     outline: none;
-    padding: 0 50rem 5rem;
     color: $color;
     background: transparent;
+    font-family: $sans;
+
+    @include mobile {
+      font-size: max(16px, 25rem); // Minimum 16px prevents iOS zoom
+      padding: 12px 0 10px;
+      margin-bottom: 20px;
+      border-bottom-width: 2px;
+      touch-action: manipulation;
+
+      &:focus {
+        border-bottom-width: 3px;
+      }
+    }
+
+    @include tablet-up {
+      font-size: 25rem;
+      padding: 0 50rem 5rem;
+    }
   }
+
   input[type="submit"]{
     background: $color;
     border: none;
     color: white;
     font-weight: 100;
-    padding: 15rem;
     font-size: 20rem;
     cursor: pointer;
-    margin-top: 15rem;
-    margin-left: 50rem;
     outline: none;
+    font-family: $sans;
+    transition: transform $mid $ease-in-out, opacity $long $ease-in-out, background-color $short $ease-in-out;
+
+    @include mobile {
+      width: 100%;
+      padding: 16px;
+      font-size: clamp(16px, 4vw, 20rem);
+      font-weight: 500;
+      border-radius: 12px;
+      margin-top: 8px;
+      margin-left: 0;
+      min-height: 54px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+
+      &:active {
+        transform: scale(0.98);
+        background: darken($color, 5%);
+      }
+    }
+
+    @include tablet-up {
+      padding: 15rem;
+      margin-top: 15rem;
+      margin-left: 50rem;
+    }
   }
+
+  // Staggered entrance animation for form elements
   *{
     font-family: $sans;
     transition: transform $mid $ease-in-out, border $mid $ease-in-out, opacity $long $ease-in-out, padding $mid $ease-in-out;
-    transform: translateY(100rem);
+
+    @include mobile {
+      transform: none; // No transform animation on mobile (bottom sheet handles it)
+      transition-duration: $mid-mobile;
+    }
+
+    @include tablet-up {
+      transform: translateY(100rem);
+    }
   }
 }
 
 .confirm-message{
-  position: absolute;
-  left: 15rem;
-  width: 460rem;
   text-align: center;
-  height: 320rem;
-  top: 360rem;
-  font-size: 40rem;
   font-weight: 100;
   opacity: 0;
-  transform: translatey(35%);
   pointer-events: none;
   transition: opacity $short $ease-in-out, transform $mid $ease-in-out;
   transition-delay: $short/2;
+
+  // MOBILE: Inside bottom sheet
+  @include mobile {
+    position: relative;
+    width: 100%;
+    padding: 40px 20px;
+    font-size: clamp(24px, 5.5vw, 40rem);
+    transform: none;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  // DESKTOP: Absolute positioning
+  @include tablet-up {
+    position: absolute;
+    left: 15rem;
+    width: 460rem;
+    height: 320rem;
+    top: 360rem;
+    font-size: 40rem;
+    transform: translatey(35%);
+  }
+
   .restart{
     display: block;
     text-align: center;
@@ -814,6 +1595,27 @@ body{
     color: $grey;
     font-size: 25rem;
     cursor: pointer;
+    transition: color $short $ease-in-out, transform $short $ease-in-out;
+
+    @include mobile {
+      font-size: clamp(16px, 4vw, 25rem);
+      padding: 12px 24px;
+      margin-top: 20px;
+      text-decoration: underline;
+      min-height: 44px; // Touch target
+      touch-action: manipulation;
+
+      &:active {
+        transform: scale(0.95);
+        color: darken($grey, 15%);
+      }
+    }
+
+    @include tablet-up {
+      &:hover {
+        color: darken($grey, 20%);
+      }
+    }
   }
 }
 
@@ -990,4 +1792,63 @@ body{
   font-family: sans-serif;
   color: rgba(0,0,0,0.4);
   letter-spacing: 2px;
+}
+
+// ============================================================================
+// ACCESSIBILITY: Reduced Motion Support
+// ============================================================================
+// Respects user preference for reduced motion (OS-level setting)
+// Provides a better experience for users with vestibular disorders or motion sensitivity
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    // Disable all animations
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+
+    // Minimize transitions (instant changes instead)
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+
+    // Disable smooth scrolling
+    scroll-behavior: auto !important;
+
+    // Remove transform-based animations
+    // Keep layout transforms but remove animation effects
+    &:not(.member):not(.calendar):not(.form) {
+      transform: none !important;
+    }
+  }
+
+  // Keep essential functional transforms (layout positioning only)
+  .member.selected {
+    @include tablet-up {
+      // Keep positioning transforms for layout
+      transform: translateX(-50%) !important;
+    }
+  }
+
+  // Disable skeleton pulse animation
+  .skeleton-item {
+    animation: none !important;
+    background: rgba($grey, 0.25);
+  }
+
+  .avatar.loading {
+    animation: none !important;
+  }
+
+  // Disable pulse animation on loading icon
+  .location-icon.loading {
+    animation: none !important;
+  }
+
+  // Bottom sheet should still slide in but instantly
+  .form {
+    @include mobile {
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
