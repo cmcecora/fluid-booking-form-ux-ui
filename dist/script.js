@@ -414,25 +414,56 @@ function invokeCalendarListener(){
 }
 
 
-function addCalendar(container){
+function addCalendar(container, monthOffset){
+  // Initialize monthOffset if not provided
+  if (typeof monthOffset === 'undefined') {
+    monthOffset = 0;
+  }
+  
+  // Store the month offset in the container
+  container.data('month-offset', monthOffset);
+  
   //get dates
   var today = new Date();
-  var day = today.getDay()
-  var date = today.getDate();
-  var month = today.getMonth();
-  var year = today.getFullYear();
-  var first = new Date();
-  first.setDate(1);
+  var currentDate = today.getDate();
+  var currentMonth = today.getMonth();
+  var currentYear = today.getFullYear();
+  
+  // Calculate display month/year based on offset
+  var displayDate = new Date(currentYear, currentMonth + monthOffset, 1);
+  var month = displayDate.getMonth();
+  var year = displayDate.getFullYear();
+  
+  var first = new Date(year, month, 1);
   var startDay = first.getDay();
   var dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   var monthLengths = [31,28,31,30,31,30,31,31,30,31,30,31];
+  
+  // Check for leap year
+  if (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) {
+    monthLengths[1] = 29;
+  }
+  
   var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var dayNames = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   
   var current = 1 - startDay;
+  var lastDay = monthLengths[month];
 
-  //assemble calendar with icon
+  //assemble calendar with icon and navigation
   var calendar = '<svg class="calendar-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10z"></path></svg>';
+  
+  // Add navigation arrows
+  // Show previous arrow if not on current month (monthOffset > 0)
+  if (monthOffset > 0) {
+    calendar += '<svg class="calendar-nav calendar-prev" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path></svg>';
+  }
+  
+  // Show next arrow if not at max offset (monthOffset < 4)
+  if (monthOffset < 4) {
+    calendar += '<svg class="calendar-nav calendar-next" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg>';
+  }
+  
   calendar += '<label class="date"></label><label class="month">'+monthNames[month]+'</label> <label class="year">'+year+'</label>';
   
   calendar += '<table><tr>';
@@ -441,22 +472,30 @@ function addCalendar(container){
   })
   calendar += '</tr><tr>';
   var dayClasses = '';
-  while( current <= 30){
+  
+  while( current <= lastDay){
     if (current > 0){
       dayClasses = '';
-      today.setDate(current);
-      if (today.getDay() == 0 || today.getDay() == 6){
+      var checkDate = new Date(year, month, current);
+      
+      // Disable weekends
+      if (checkDate.getDay() == 0 || checkDate.getDay() == 6){
         dayClasses += ' disabled';
       }
-      if (current < date){
+      
+      // Disable past dates only in current month
+      if (monthOffset === 0 && current < currentDate){
         dayClasses += ' disabled';
       }
-      if (current == date){
+      
+      // Mark today
+      if (monthOffset === 0 && current == currentDate){
         dayClasses += ' today';
       }
-      calendar += '<td class="'+dayClasses+'" data-day="'+dayNames[(current + startDay)%7]+'">'+current+'</td>';
+      
+      calendar += '<td class="'+dayClasses+'" data-day="'+dayNames[checkDate.getDay()]+'">'+current+'</td>';
     } else {
-      calendar += '<td></td>';
+      calendar += '<td class="disabled"></td>';
     }
     
     if ( (current + startDay) % 7 == 0){
@@ -469,5 +508,30 @@ function addCalendar(container){
   calendar += '</tr></table>';
   container.html(calendar);
   
+  // Add navigation listeners
+  addCalendarNavigation(container);
+  
   invokeCalendarListener();
+}
+
+function addCalendarNavigation(container){
+  // Previous month handler
+  container.find('.calendar-prev').on('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    var monthOffset = container.data('month-offset') || 0;
+    if (monthOffset > 0) {
+      addCalendar(container, monthOffset - 1);
+    }
+  });
+  
+  // Next month handler
+  container.find('.calendar-next').on('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    var monthOffset = container.data('month-offset') || 0;
+    if (monthOffset < 4) {
+      addCalendar(container, monthOffset + 1);
+    }
+  });
 }

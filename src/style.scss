@@ -75,6 +75,10 @@ body{
           transition: opacity $short $ease-in-out, transform $short $ease-in-out;
         }
       }
+      .calendar-nav{
+        opacity: 0;
+        pointer-events: none;
+      }
       .location-search{
         opacity: 1;
         transform: translatey(0%);
@@ -346,6 +350,31 @@ body{
   opacity: 0;
   transition: opacity $short $ease-in-out, fill $short $ease-in-out;
   z-index: 1;
+}
+
+.calendar-nav{
+  position: absolute;
+  top: 15rem;
+  width: 24rem;
+  height: 24rem;
+  fill: $color;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity $short $ease-in-out, fill $short $ease-in-out, transform $short $ease-in-out;
+  z-index: 2;
+  
+  &:hover{
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  
+  &.calendar-prev{
+    left: 340rem;
+  }
+  
+  &.calendar-next{
+    right: 15rem;
+  }
 }
 
 // Location Search Styles

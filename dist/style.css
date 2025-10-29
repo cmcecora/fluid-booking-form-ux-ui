@@ -58,6 +58,10 @@ body {
   transform: perspective(100rem) translatez(-50rem);
   transition: opacity 300ms cubic-bezier(0.645, 0.045, 0.355, 1), transform 300ms cubic-bezier(0.645, 0.045, 0.355, 1);
 }
+.wrap.member-selected.date-selected .calendar-nav {
+  opacity: 0;
+  pointer-events: none;
+}
 .wrap.member-selected.date-selected .location-search {
   opacity: 1;
   transform: translatey(0%);
@@ -331,6 +335,28 @@ body {
   opacity: 0;
   transition: opacity 300ms cubic-bezier(0.645, 0.045, 0.355, 1), fill 300ms cubic-bezier(0.645, 0.045, 0.355, 1);
   z-index: 1;
+}
+
+.calendar-nav {
+  position: absolute;
+  top: 15rem;
+  width: 24rem;
+  height: 24rem;
+  fill: hsl(241, 100%, 59%);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 300ms cubic-bezier(0.645, 0.045, 0.355, 1), fill 300ms cubic-bezier(0.645, 0.045, 0.355, 1), transform 300ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  z-index: 2;
+}
+.calendar-nav:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+.calendar-nav.calendar-prev {
+  left: 340rem;
+}
+.calendar-nav.calendar-next {
+  right: 15rem;
 }
 
 .location-search {
