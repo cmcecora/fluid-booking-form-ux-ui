@@ -1,0 +1,776 @@
+$hue: 241;
+
+$distance: 0;
+$color: hsl($hue, 100%, 59%);
+$accent: hsl( ($hue + $distance) , 100%, 50%);
+$grey: #ddd;
+$sans: 'Alegreya Sans', sans-serif;
+$ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1.000);
+$short: 300ms;
+$mid: 500ms;
+$long: 800ms;
+
+
+html{
+  font-size: 1.3px;
+  *{
+    box-sizing: border-box;
+  }
+}
+
+body{
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(60deg, darken(adjust-hue($color,5),10%), lighten(adjust-hue($color,-5), 10%));
+  background: white;
+  font-family: $sans;
+  font-size: 40rem;
+  overflow-y: auto;
+}
+
+.wrap{
+  position: absolute;
+  top: calc(50% - 25px);
+  left: 50%;
+  transform: translate3d(-50%,-50%,0);
+  color: $color;
+  width: 500rem;
+  height: 480rem; 
+  margin-top: -90px;
+  &.member-selected{ 
+    .member:not(.selected){
+      opacity: 0;
+      pointer-events: none;
+      transform: perspective(100rem) translatez(-50rem);
+      transition: opacity $short $ease-in-out, transform $long $ease-in-out, height $mid $ease-in-out;
+    }
+    .instructions .first{
+      opacity: 0;
+    }
+    &.date-selected{ 
+      .deselect-date{
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .calendar{ 
+        .date{
+          transform: scale(0.5) translateY(-5rem) translateX(0rem);
+          opacity: 1;
+        }
+        .month {
+          transform: scale(0.5) translateY(-5rem) translateX(100rem);
+        }
+        .year{
+          transform: scale(0.5) translateY(-5rem) translateX(200rem);
+        }
+        
+        table{
+          pointer-events: none;
+          transform: translateY(50rem);
+          border-top: 1px solid rgba($grey,0.8);
+        }
+        td:not(.selected), th:not(.selected){
+          opacity: 0;
+          transform: perspective(100rem) translatez(-50rem);
+          transition: opacity $short $ease-in-out, transform $short $ease-in-out;
+        }
+      }
+      .calendar-nav{
+        opacity: 0;
+        pointer-events: none;
+      }
+      .location-search{
+        opacity: 1;
+        transform: translatey(0%);
+        pointer-events: auto;
+      }
+      .calendar-icon{
+        opacity: 1;
+      }
+      &.location-selected{
+        .form{
+          opacity: 1;
+          transform: translatey(0%);
+          pointer-events: auto;
+          transition: opacity $mid $ease-in-out, transform $long $ease-in-out;
+          *{
+              transform: translatey(0);
+              &:nth-child(1){transition-delay: $short * 1/6;}
+              &:nth-child(2){transition-delay: $short * 2/6;}
+              &:nth-child(3){transition-delay: $short * 3/6;}
+              &:nth-child(4){transition-delay: $short * 4/6;}
+              &:nth-child(5){transition-delay: $short * 5/6;}
+              &:nth-child(6){transition-delay: $short * 6/6;}
+          }
+        }
+        .deselect-location{
+          opacity: 1;
+          pointer-events: auto;
+        }
+        .location-search{
+          pointer-events: none;
+
+          .location-results{
+            opacity: 0;
+            pointer-events: none;
+          }
+        }
+        &.booking-complete{
+          .deselect-member, .deselect-date, .deselect-location{
+            opacity: 0;
+            pointer-events: none;
+          }
+          .form{
+            transition: opacity $mid $ease-in-out, transform $long $ease-in-out;
+            &:before, &:after{
+              transform: scalex(0);
+            }
+            label{
+              opacity: 0;
+              transition: opacity $short $ease-in-out;
+            }
+            input{
+              border-bottom: 1px solid rgba($grey,0.8);
+              pointer-events: none;
+              &[name="name"]{
+                padding: 10rem 50rem;
+                transform: translatey(-33rem);
+              }
+              &[name="email"]{
+                padding: 10rem 50rem;
+                transform: translatey(-60rem);
+              }
+              &[type="submit"]{
+                transform: translatey(-60rem);
+                opacity: 0;
+                transition: transform $mid $ease-in-out, opacity $short $ease-in-out;
+              }
+            }
+          }
+          .confirm-message{
+            opacity: 1;
+            transform: translatey(0%);
+            pointer-events: auto;
+          }
+        }
+      }
+    }
+  }
+}
+
+.instructions{
+  margin-bottom: 15rem;
+  text-align: center;
+  font-weight: 300;
+  color: $color;
+    > *{
+      transition: opacity $short $ease-in-out;
+    }
+}
+
+.staff{
+  position: relative;
+  width: 100%;
+  height: 380rem;
+}
+.deselect-member, .deselect-date, .deselect-location{
+  position: absolute;
+  color: $grey;
+  top: 35rem;
+  right: 25rem;
+  z-index: 10;
+  display: inline-block;
+  font-size: 20rem;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity $short $ease-in-out;
+  font-weight: 100;
+}
+.deselect-date{
+  top: 95rem;
+}
+.deselect-location{
+  top: 145rem;
+}
+
+.member{
+  background: white;
+  width: 100%;
+  padding: 15rem;
+  height: 85rem;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  transition: opacity $long $ease-in-out, transform $mid $ease-in-out, height $short $ease-in-out, box-shadow $long $ease-in-out;
+  box-shadow: 5rem 5rem 20rem rgba($color, 0.15);
+  overflow: hidden;
+  .name{
+    display: inline-block;
+    margin-left: 75rem;
+    line-height: 60rem;
+    vertical-align: middle;
+    transform-origin: 0% 0%;
+    transition: transform $mid $ease-in-out;
+    font-weight: 100;
+    font-size: 35rem;
+  }
+  .avatar{
+    transform-origin: 100% 0%;
+    width: 60rem;
+    height: 60rem;
+    border-radius: 100rem;
+    display: inline-block;
+    position: absolute;
+    top: 12rem;
+    left: 12rem;
+    background-size: cover;
+    filter: saturate(50%) contrast(120%);
+    transition: transform $mid $ease-in-out;
+    &:after{
+      content: '';
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 100rem;
+      background-color: $color;
+      mix-blend-mode: lighten;
+    }
+    
+  }
+  
+  &:nth-child(1){
+    transform: translatey(50rem) perspective(100rem) translatez(-10rem);
+  }
+  &:nth-child(2){
+    transform: translatey(135rem) perspective(100rem) translatez(-10rem);
+  }
+  &:nth-child(3){
+    transform: translatey(220rem) perspective(100rem) translatez(-10rem);
+  }
+  &:nth-child(4){
+    transform: translatey(305rem) perspective(100rem) translatez(-10rem);
+  }
+  &.selected{
+    transform: translatey(0rem) perspective(100rem) translatez(0rem);
+    height: 450rem;
+    cursor: default;
+    z-index: 2;
+    box-shadow: 10rem 10rem 60rem rgba(darken($color,20%), 0.1);
+    transition: opacity $short $ease-in-out, transform $long $ease-in-out, height $mid $ease-in-out, box-shadow $long $ease-in-out;
+    .deselect-member{
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .name, .avatar{
+      transform: scale(0.7) translatex(-30rem);
+    }
+    .calendar{
+      height: 340rem;
+      transform: translatey(0rem);
+      transition: opacity $mid $ease-in-out, transform $mid $ease-in-out, height $long $ease-in-out;
+      opacity: 1;
+    }
+  }
+}
+
+.calendar{
+  width: 100%;
+  margin-top: 0rem;
+  height: 0;
+  opacity: 0;
+  transition: opacity $short $ease-in-out, transform $short $ease-in-out, height $short $ease-in-out;
+  font-size: 17rem;
+  border-top: 1px solid rgba($grey,0.8);
+  .date, .month, .year{
+    position: absolute;
+    top: 15rem;
+    left: 50rem;
+    font-size: 50rem;
+    display: inline-block;
+    font-weight: 100;
+    transition: opacity $short $ease-in-out, transform $mid $ease-in-out;
+    transform-origin: 100% 0%;
+    transform: translateX(0) scale(1);
+  }
+  .year{
+    transform: translateX(80rem) scale(1);
+  }
+  .date{
+    opacity: 0;
+    transform-origin: 0% 0%;
+    transform: translateX(-100rem) scale(1);
+  }
+  table{
+    width: 100%;
+    text-align: center;
+    transition: transform $mid $ease-in-out;
+    transform: translatey(80rem);
+    border-top: 1px solid white;
+    
+    
+    td, th{
+      width: 13%;
+      padding: 10rem;
+      cursor: pointer;
+      font-weight: 200;
+
+      &.today{
+        background: $color;
+        color: white;
+      }
+      &.disabled{
+        color: $grey;
+        pointer-events: none;
+        &.today{
+          background: $grey;
+          color: white;
+        }
+      }
+      &.selected{
+        transform: perspective(100rem) translateZ(80rem);
+        transition: opacity $long $ease-in-out, transform $long $ease-in-out;
+        opacity: 0;
+      }
+    }
+    th{
+      padding-top: 20rem;
+    }
+  }
+}
+
+.calendar-icon{
+  position: absolute;
+  left: 15rem;
+  top: 15rem;
+  width: 24rem;
+  height: 24rem;
+  fill: rgba($grey, 0.7);
+  opacity: 0;
+  transition: opacity $short $ease-in-out, fill $short $ease-in-out;
+  z-index: 1;
+}
+
+.calendar-nav{
+  position: absolute;
+  top: 15rem;
+  width: 24rem;
+  height: 24rem;
+  fill: $color;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity $short $ease-in-out, fill $short $ease-in-out, transform $short $ease-in-out;
+  z-index: 2;
+  
+  &:hover{
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  
+  &.calendar-prev{
+    left: 340rem;
+  }
+  
+  &.calendar-next{
+    right: 15rem;
+  }
+}
+
+// Location Search Styles
+.location-search{
+  position: absolute;
+  left: 15rem;
+  width: calc(100% - 20rem);
+  top: 125rem;
+  opacity: 0;
+  transform: translatey(50%);
+  pointer-events: none;
+  transition: opacity $short $ease-in-out, transform $mid $ease-in-out;
+
+  .search-wrapper{
+    position: relative;
+    width: 100%;
+    margin-bottom: 10rem;
+  }
+
+  .location-icon{
+    position: absolute;
+    left: 15rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24rem;
+    height: 24rem;
+    cursor: pointer;
+    fill: rgba($grey, 0.7);
+    transition: fill $short $ease-in-out, transform $short $ease-in-out;
+    z-index: 2;
+
+    &:hover{
+      fill: $color;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    &.loading{
+      animation: pulse 1s ease-in-out infinite;
+    }
+  }
+
+  .location-input{
+    width: 100%;
+    padding: 10rem 20rem 10rem 50rem;
+    font-size: 25rem;
+    font-weight: 100;
+    border: none;
+    border-bottom: 1px solid rgba($grey, 0.3);
+    background: white;
+    color: $color;
+    outline: none;
+    font-family: $sans;
+    transition: border-color $short $ease-in-out;
+
+    &::placeholder{
+      color: rgba($color, 0.4);
+      font-weight: 100;
+    }
+
+    &:focus{
+      border-bottom-color: $color;
+    }
+  }
+
+  .location-results{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height $short $ease-in-out;
+
+    &.visible{
+      max-height: 300rem;
+      overflow-y: auto;
+    }
+
+    li{
+      background: white;
+      padding: 10rem 20rem;
+      font-size: 22rem;
+      font-weight: 100;
+      color: $color;
+      cursor: pointer;
+      border-bottom: 1px solid rgba($grey, 0.15);
+      opacity: 0;
+      transform: translateY(10rem) perspective(100rem) translateZ(20rem);
+      transition: all $mid $ease-in-out, background-color $short $ease-in-out;
+
+      &:hover{
+        background: rgba($color, 0.05);
+        padding-left: 25rem;
+      }
+
+      &.no-results{
+        color: $grey;
+        text-align: center;
+        cursor: default;
+        &:hover{
+          background: white;
+          padding-left: 20rem;
+        }
+      }
+
+      &:last-child{
+        border-bottom: none;
+      }
+    }
+
+    &.visible li{
+      opacity: 1;
+      transform: translateY(0) perspective(100rem) translateZ(0);
+
+      // Staggered entrance animation
+      &:nth-child(1){transition-delay: $mid * 0/6;}
+      &:nth-child(2){transition-delay: $mid * 1/6;}
+      &:nth-child(3){transition-delay: $mid * 2/6;}
+      &:nth-child(4){transition-delay: $mid * 3/6;}
+      &:nth-child(5){transition-delay: $mid * 4/6;}
+      &:nth-child(6){transition-delay: $mid * 5/6;}
+    }
+  }
+}
+
+@keyframes pulse{
+  0%, 100%{
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  50%{
+    opacity: 0.5;
+    transform: translateY(-50%) scale(0.9);
+  }
+}
+
+.form{
+  position: absolute;
+  left: 15rem;
+  width: 460rem;
+  height: 320rem;
+  top: 200rem;
+  opacity: 0;
+  transform: translatey(50%);
+  pointer-events: none;
+  transition: opacity $short $ease-in-out, transform $mid $ease-in-out;
+  &:before, &:after{
+    content: '';
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    width: 50rem;
+    height: 100%;
+    background: white;
+    transition: transform $long $ease-in-out;
+  }
+  &:before{
+    left: 0;
+    transform-origin: 0% 50%;
+  }
+  &:after{
+    right: 0;
+    transform-origin: 100% 50%;
+  }
+  label{
+    display: block;
+    font-size: 15rem;
+    font-weight: 300;
+    color: $grey;
+    margin-left: 50rem;
+  }
+  input[type="text"], input[type="email"]{
+    font-size: 25rem;
+    font-weight: 100;
+    margin-bottom: 15rem;
+    border: none;
+    border-bottom: 1px solid $color;
+    width: 100%;
+    outline: none;
+    padding: 0 50rem 5rem;
+    color: $color;
+    background: transparent;
+  }
+  input[type="submit"]{
+    background: $color;
+    border: none;
+    color: white;
+    font-weight: 100;
+    padding: 15rem;
+    font-size: 20rem;
+    cursor: pointer;
+    margin-top: 15rem;
+    margin-left: 50rem;
+    outline: none;
+  }
+  *{
+    font-family: $sans;
+    transition: transform $mid $ease-in-out, border $mid $ease-in-out, opacity $long $ease-in-out, padding $mid $ease-in-out;
+    transform: translateY(100rem);
+  }
+}
+
+.confirm-message{
+  position: absolute;
+  left: 15rem;
+  width: 460rem;
+  text-align: center;
+  height: 320rem;
+  top: 320rem;
+  font-size: 40rem;
+  font-weight: 100;
+  opacity: 0;
+  transform: translatey(35%);
+  pointer-events: none;
+  transition: opacity $short $ease-in-out, transform $mid $ease-in-out;
+  transition-delay: $short/2;
+  .restart{
+    display: block;
+    text-align: center;
+    margin-top: 15rem;
+    color: $grey;
+    font-size: 25rem;
+    cursor: pointer;
+  }
+}
+
+// Search Component Styles
+.search-container{
+  position: relative;
+  width: 100%;
+  margin-bottom: 7.7rem;
+  z-index: 100;
+}
+
+.search-input{
+  width: 100%;
+  height: 50rem;
+  padding: 12rem 20rem;
+  font-size: 23rem;
+  font-weight: 100;
+  color: $color;
+  background: white;
+  border: 2px solid transparent;
+  border-radius: 5rem;
+  outline: none;
+  font-family: $sans;
+  transition: box-shadow $short $ease-in-out, border-color $short $ease-in-out;
+  box-shadow: 5rem 5rem 20rem rgba($color, 0.1);
+
+  &::placeholder{
+    color: rgba($color, 0.4);
+    font-weight: 100;
+  }
+
+  // Hover effect - subtle glow
+  &:hover{
+    box-shadow: 5rem 5rem 25rem rgba($color, 0.2), 0 0 15rem rgba($color, 0.08);
+  }
+
+  // Focus effect - border glow
+  &:focus{
+    border-color: rgba($color, 0.5);
+    box-shadow: 5rem 5rem 30rem rgba($color, 0.25), 0 0 20rem rgba($color, 0.12);
+  }
+}
+
+.search-dropdown{
+  position: absolute;
+  top: calc(100% + 5rem);
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 5rem;
+  box-shadow: 5rem 5rem 30rem rgba($color, 0.15);
+  max-height: 350rem;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10rem);
+  transition: opacity $short $ease-in-out, transform $short $ease-in-out;
+  z-index: 10;
+
+  &.active{
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  // Custom scrollbar
+  &::-webkit-scrollbar{
+    width: 8rem;
+  }
+
+  &::-webkit-scrollbar-track{
+    background: rgba($grey, 0.2);
+    border-radius: 5rem;
+  }
+
+  &::-webkit-scrollbar-thumb{
+    background: rgba($color, 0.3);
+    border-radius: 5rem;
+
+    &:hover{
+      background: rgba($color, 0.5);
+    }
+  }
+}
+
+.skeleton-loading{
+  display: none;
+  padding: 10rem;
+
+  &.active{
+    display: block;
+  }
+}
+
+.skeleton-item{
+  height: 45rem;
+  margin-bottom: 8rem;
+  background: linear-gradient(90deg,
+    rgba($grey, 0.2) 0%,
+    rgba($grey, 0.3) 20%,
+    rgba($grey, 0.2) 40%,
+    rgba($grey, 0.2) 100%);
+  background-size: 200% 100%;
+  border-radius: 3rem;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+
+  &:last-child{
+    margin-bottom: 0;
+  }
+}
+
+@keyframes skeleton-shimmer{
+  0%{
+    background-position: 200% 0;
+  }
+  100%{
+    background-position: -200% 0;
+  }
+}
+
+.search-results{
+  display: block;
+}
+
+.search-result-item{
+  padding: 15rem 20rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba($grey, 0.3);
+  transition: background-color $short $ease-in-out, padding-left $short $ease-in-out;
+
+  &:last-child{
+    border-bottom: none;
+  }
+
+  &:hover{
+    background-color: rgba($color, 0.05);
+    padding-left: 25rem;
+  }
+
+  .result-name{
+    font-size: 22rem;
+    font-weight: 100;
+    color: $color;
+    margin-bottom: 3rem;
+
+    .highlight{
+      font-weight: 500;
+      color: darken($color, 10%);
+    }
+  }
+
+  .result-category{
+    font-size: 16rem;
+    font-weight: 100;
+    color: $grey;
+  }
+}
+
+.no-results{
+  padding: 30rem 20rem;
+  text-align: center;
+  font-size: 20rem;
+  font-weight: 100;
+  color: $grey;
+}
+
+.sig{
+  position: fixed;
+  bottom: 33px;
+  right: 8px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 100;
+  font-family: sans-serif;
+  color: rgba(0,0,0,0.4);
+  letter-spacing: 2px;
+}
