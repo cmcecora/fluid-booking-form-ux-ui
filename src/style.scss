@@ -217,12 +217,17 @@ body{
 .instructions{
   margin-bottom: 25rem;
   text-align: center;
-  height: 80vh;
   font-weight: 300;
   color: $color;
     > *{
       transition: opacity $short $ease-in-out;
     }
+}
+
+.staff{
+  position: relative;
+  width: 100%;
+  height: 450rem;
 }
 .deselect-member, .deselect-date, .deselect-slot{
   position: absolute;
@@ -512,6 +517,170 @@ body{
     cursor: pointer;
   }
 }
+
+// Search Component Styles
+.search-container{
+  position: relative;
+  width: 100%;
+  margin-bottom: 25rem;
+  z-index: 100;
+}
+
+.search-input{
+  width: 100%;
+  height: 60rem;
+  padding: 15rem 20rem;
+  font-size: 25rem;
+  font-weight: 100;
+  color: $color;
+  background: white;
+  border: 2px solid transparent;
+  border-radius: 5rem;
+  outline: none;
+  font-family: $sans;
+  transition: box-shadow $short $ease-in-out, border-color $short $ease-in-out;
+  box-shadow: 5rem 5rem 20rem rgba($color, 0.1);
+
+  &::placeholder{
+    color: rgba($color, 0.4);
+    font-weight: 100;
+  }
+
+  // Hover effect - subtle glow
+  &:hover{
+    box-shadow: 5rem 5rem 25rem rgba($color, 0.2), 0 0 15rem rgba($color, 0.08);
+  }
+
+  // Focus effect - border glow
+  &:focus{
+    border-color: rgba($color, 0.5);
+    box-shadow: 5rem 5rem 30rem rgba($color, 0.25), 0 0 20rem rgba($color, 0.12);
+  }
+}
+
+.search-dropdown{
+  position: absolute;
+  top: calc(100% + 5rem);
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 5rem;
+  box-shadow: 5rem 5rem 30rem rgba($color, 0.15);
+  max-height: 350rem;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10rem);
+  transition: opacity $short $ease-in-out, transform $short $ease-in-out;
+  z-index: 10;
+
+  &.active{
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  // Custom scrollbar
+  &::-webkit-scrollbar{
+    width: 8rem;
+  }
+
+  &::-webkit-scrollbar-track{
+    background: rgba($grey, 0.2);
+    border-radius: 5rem;
+  }
+
+  &::-webkit-scrollbar-thumb{
+    background: rgba($color, 0.3);
+    border-radius: 5rem;
+
+    &:hover{
+      background: rgba($color, 0.5);
+    }
+  }
+}
+
+.skeleton-loading{
+  display: none;
+  padding: 10rem;
+
+  &.active{
+    display: block;
+  }
+}
+
+.skeleton-item{
+  height: 45rem;
+  margin-bottom: 8rem;
+  background: linear-gradient(90deg,
+    rgba($grey, 0.2) 0%,
+    rgba($grey, 0.3) 20%,
+    rgba($grey, 0.2) 40%,
+    rgba($grey, 0.2) 100%);
+  background-size: 200% 100%;
+  border-radius: 3rem;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+
+  &:last-child{
+    margin-bottom: 0;
+  }
+}
+
+@keyframes skeleton-shimmer{
+  0%{
+    background-position: 200% 0;
+  }
+  100%{
+    background-position: -200% 0;
+  }
+}
+
+.search-results{
+  display: block;
+}
+
+.search-result-item{
+  padding: 15rem 20rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba($grey, 0.3);
+  transition: background-color $short $ease-in-out, padding-left $short $ease-in-out;
+
+  &:last-child{
+    border-bottom: none;
+  }
+
+  &:hover{
+    background-color: rgba($color, 0.05);
+    padding-left: 25rem;
+  }
+
+  .result-name{
+    font-size: 22rem;
+    font-weight: 100;
+    color: $color;
+    margin-bottom: 3rem;
+
+    .highlight{
+      font-weight: 500;
+      color: darken($color, 10%);
+    }
+  }
+
+  .result-category{
+    font-size: 16rem;
+    font-weight: 100;
+    color: $grey;
+  }
+}
+
+.no-results{
+  padding: 30rem 20rem;
+  text-align: center;
+  font-size: 20rem;
+  font-weight: 100;
+  color: $grey;
+}
+
 .sig{
   position: fixed;
   bottom: 8px;

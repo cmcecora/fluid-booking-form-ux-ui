@@ -12,6 +12,15 @@ html(lang='en')
     .wrap
       .instructions
         .first Choose a medical test
+      .search-container
+        input.search-input(type="text" placeholder="Search medical tests..." autocomplete="off")
+        .search-dropdown
+          .skeleton-loading
+            .skeleton-item
+            .skeleton-item
+            .skeleton-item
+            .skeleton-item
+          .search-results
       .staff
         .member
           .avatar(style='background-image: url(https://images.unsplash.com/photo-1579154204601-01588f351e67?w=300&h=300&fit=crop)')
