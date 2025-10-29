@@ -88,20 +88,10 @@ body{
         opacity: 1;
       }
       &.location-selected{
-        .form{
+        .testing-center-section{
           opacity: 1;
-          transform: translatey(0%);
+          transform: translateX(0);
           pointer-events: auto;
-          transition: opacity $mid $ease-in-out, transform $long $ease-in-out;
-          *{
-              transform: translatey(0);
-              &:nth-child(1){transition-delay: $short * 1/6;}
-              &:nth-child(2){transition-delay: $short * 2/6;}
-              &:nth-child(3){transition-delay: $short * 3/6;}
-              &:nth-child(4){transition-delay: $short * 4/6;}
-              &:nth-child(5){transition-delay: $short * 5/6;}
-              &:nth-child(6){transition-delay: $short * 6/6;}
-          }
         }
         .deselect-location{
           opacity: 1;
@@ -115,42 +105,73 @@ body{
             pointer-events: none;
           }
         }
-        &.booking-complete{
-          .deselect-member, .deselect-date, .deselect-location{
-            opacity: 0;
-            pointer-events: none;
-          }
+        &.center-selected{
           .form{
-            transition: opacity $mid $ease-in-out, transform $long $ease-in-out;
-            &:before, &:after{
-              transform: scalex(0);
-            }
-            label{
-              opacity: 0;
-              transition: opacity $short $ease-in-out;
-            }
-            input{
-              border-bottom: 1px solid rgba($grey,0.8);
-              pointer-events: none;
-              &[name="name"]{
-                padding: 10rem 50rem;
-                transform: translatey(-33rem);
-              }
-              &[name="email"]{
-                padding: 10rem 50rem;
-                transform: translatey(-60rem);
-              }
-              &[type="submit"]{
-                transform: translatey(-60rem);
-                opacity: 0;
-                transition: transform $mid $ease-in-out, opacity $short $ease-in-out;
-              }
-            }
-          }
-          .confirm-message{
             opacity: 1;
             transform: translatey(0%);
             pointer-events: auto;
+            transition: opacity $mid $ease-in-out, transform $long $ease-in-out;
+            *{
+                transform: translatey(0);
+                &:nth-child(1){transition-delay: $short * 1/6;}
+                &:nth-child(2){transition-delay: $short * 2/6;}
+                &:nth-child(3){transition-delay: $short * 3/6;}
+                &:nth-child(4){transition-delay: $short * 4/6;}
+                &:nth-child(5){transition-delay: $short * 5/6;}
+                &:nth-child(6){transition-delay: $short * 6/6;}
+            }
+          }
+          .deselect-center{
+            opacity: 1;
+            pointer-events: auto;
+          }
+          .testing-center-section{
+            pointer-events: none;
+          }
+          .center-icon{
+            opacity: 1;
+          }
+          .testing-center-heading{
+            opacity: 0;
+            visibility: hidden;
+          }
+          &.booking-complete{
+            .deselect-member, .deselect-date, .deselect-location, .deselect-center{
+              opacity: 0;
+              pointer-events: none;
+            }
+            .form{
+              transition: opacity $mid $ease-in-out, transform $long $ease-in-out;
+              &:before, &:after{
+                transform: scalex(0);
+              }
+              label{
+                opacity: 0;
+                transition: opacity $short $ease-in-out;
+              }
+              input{
+                border-bottom: 1px solid rgba($grey,0.8);
+                pointer-events: none;
+                &[name="name"]{
+                  padding: 10rem 50rem;
+                  transform: translatey(-33rem);
+                }
+                &[name="email"]{
+                  padding: 10rem 50rem;
+                  transform: translatey(-60rem);
+                }
+                &[type="submit"]{
+                  transform: translatey(-60rem);
+                  opacity: 0;
+                  transition: transform $mid $ease-in-out, opacity $short $ease-in-out;
+                }
+              }
+            }
+            .confirm-message{
+              opacity: 1;
+              transform: translatey(0%);
+              pointer-events: auto;
+            }
           }
         }
       }
@@ -209,7 +230,7 @@ body{
   height: 1rem;
   visibility: hidden;
 }
-.deselect-member, .deselect-date, .deselect-location{
+.deselect-member, .deselect-date, .deselect-location, .deselect-center{
   position: absolute;
   color: $grey;
   top: 35rem;
@@ -228,6 +249,9 @@ body{
 }
 .deselect-location{
   top: 145rem;
+}
+.deselect-center{
+  top: 195rem;
 }
 
 .member{
@@ -297,7 +321,7 @@ body{
     top: calc(50% - 240px + 25px);
     left: 50%;
     transform: translateX(-50%) perspective(100rem) translatez(0rem);
-    height: 550rem;
+    height: 500rem;
     width: 500rem;
     cursor: default;
     z-index: 1000;
@@ -357,6 +381,7 @@ body{
     transition: opacity $short $ease-in-out, transform $mid $ease-in-out;
     transform-origin: 100% 0%;
     transform: translateX(0) scale(1);
+    z-index: 5;
   }
   .year{
     transform: translateX(80rem) scale(1);
@@ -574,12 +599,154 @@ body{
   }
 }
 
+// Testing Center Section Styles
+.center-icon{
+  position: absolute;
+  left: 15rem;
+  top: 178rem;
+  width: 24rem;
+  height: 24rem;
+  fill: rgba($grey, 0.7);
+  opacity: 0;
+  transition: opacity $short $ease-in-out, fill $short $ease-in-out;
+  z-index: 1;
+  border-radius: 3rem;
+  background-size: cover;
+  background-position: center;
+}
+
+.testing-center-section{
+  position: absolute;
+  left: 15rem;
+  width: calc(100% - 30rem);
+  top: 175rem;
+  opacity: 0;
+  transform: translateX(100%);
+  pointer-events: none;
+  transition: opacity $long $ease-in-out, transform $long $ease-in-out;
+
+  .testing-center-heading{
+    font-size: 20rem;
+    font-weight: 300;
+    color: $grey;
+    margin-bottom: 15rem;
+    text-align: left;
+  }
+
+  .testing-center-cards{
+    display: flex;
+    gap: 15rem;
+    justify-content: flex-start;
+  }
+}
+
+.center-card{
+  background: white;
+  width: 145rem;
+  border-radius: 5rem;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 3rem 3rem 15rem rgba($color, 0.12);
+  transition: transform $short $ease-in-out, box-shadow $short $ease-in-out, opacity $mid $ease-in-out;
+  position: relative;
+
+  &:hover{
+    box-shadow: 5rem 5rem 25rem rgba($color, 0.2);
+    transform: scale(1.02);
+  }
+
+  .center-photo{
+    width: 100%;
+    height: 60rem;
+    background-size: cover;
+    background-position: center;
+    background-color: rgba($grey, 0.2);
+  }
+
+  .center-info{
+    padding: 12rem;
+  }
+
+  .center-name{
+    font-size: 20rem;
+    font-weight: 400;
+    color: $color;
+    margin-bottom: 6rem;
+    line-height: 1.2;
+  }
+
+  .center-distance{
+    display: inline-block;
+    font-size: 15rem;
+    font-weight: 300;
+    color: white;
+    background: lighten($color, 10%);
+    padding: 3rem 8rem;
+    border-radius: 10rem;
+    margin-bottom: 8rem;
+  }
+
+  .center-address{
+    font-size: 16rem;
+    font-weight: 100;
+    color: darken($grey, 10%);
+    line-height: 1.3;
+    max-height: 40rem;
+    overflow: hidden;
+  }
+
+  // When card is selected
+  &.selected{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 24rem;
+    height: 24rem;
+    border-radius: 3rem;
+    box-shadow: none;
+    z-index: 10;
+
+    .center-photo{
+      width: 24rem;
+      height: 24rem;
+    }
+
+    .center-info{
+      display: none;
+    }
+  }
+
+  // When another card is selected
+  &.not-selected{
+    opacity: 0;
+    transform: scale(0.9);
+    pointer-events: none;
+  }
+}
+
+// Selected center name display
+.center-name-display{
+  position: absolute;
+  left: 61rem;
+  top: 184rem;
+  font-size: 25rem;
+  font-weight: 100;
+  color: $color;
+  opacity: 0;
+  transition: opacity $mid $ease-in-out;
+  line-height: 24rem;
+
+  .wrap.center-selected & {
+    opacity: 1;
+  }
+}
+
 .form{
   position: absolute;
   left: 15rem;
   width: 460rem;
   height: 320rem;
-  top: 200rem;
+  top: 240rem;
   opacity: 0;
   transform: translatey(50%);
   pointer-events: none;
@@ -646,7 +813,7 @@ body{
   width: 460rem;
   text-align: center;
   height: 320rem;
-  top: 320rem;
+  top: 360rem;
   font-size: 40rem;
   font-weight: 100;
   opacity: 0;

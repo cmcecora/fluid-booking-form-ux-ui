@@ -174,6 +174,28 @@ const unsplashPhotoIds = [
   'photo-1582719366384-87bb8ad1c39c'  // Medical facility
 ];
 
+// Testing center lab company names
+const testingCenterNames = [
+  'LabCorp',
+  'Quest Diagnostics',
+  'BioReference Laboratories',
+  'Sonic Healthcare',
+  'ARUP Laboratories',
+  'Mayo Clinic Laboratories',
+  'Laboratory Corporation of America',
+  'Eurofins Scientific'
+];
+
+// Curated Unsplash photo IDs for medical buildings/clinics
+const testingCenterPhotoIds = [
+  'photo-1519494026892-80bbd2d6fd0d', // Modern medical building
+  'photo-1587351021759-3e566b6af7cc', // Healthcare facility
+  'photo-1516549655169-df83a0774514', // Medical building exterior
+  'photo-1538108149393-fbbd81895907', // Clinic entrance
+  'photo-1504813184591-01572f98c85f', // Medical center
+  'photo-1587854692152-cbe660dbde88'  // Lab facility
+];
+
 // ===== STATE MANAGEMENT =====
 let loadedTestsCount = 0;
 const TESTS_PER_BATCH = 30;
@@ -239,6 +261,7 @@ function createCardHTML(testName, photoUrl, index){
       <div class="deselect-member">change</div>
       <div class="deselect-date">change</div>
       <div class="deselect-location">change</div>
+      <div class="deselect-center">change</div>
       <div class="calendar"></div>
       <div class="location-search">
         <div class="search-wrapper">
@@ -248,6 +271,12 @@ function createCardHTML(testName, photoUrl, index){
           <input class="location-input" type="text" placeholder="Enter city or state" autocomplete="off">
         </div>
         <ul class="location-results"></ul>
+      </div>
+      <div class="center-icon"></div>
+      <div class="center-name-display"></div>
+      <div class="testing-center-section">
+        <div class="testing-center-heading">Pick a Testing Center</div>
+        <div class="testing-center-cards"></div>
       </div>
       <form class="form">
         <label>Name</label>
@@ -377,22 +406,33 @@ $(document).on('click', '.deselect-member, .restart', function(e){
   }
 
   $('.member').removeClass('selected');
-  $('.wrap').removeClass('member-selected date-selected location-selected booking-complete');
+  $('.wrap').removeClass('member-selected date-selected location-selected center-selected booking-complete');
   e.preventDefault();
   e.stopPropagation();
 });
 
 $(document).on('click', '.deselect-date', function(e){
-  $('.wrap').removeClass('date-selected location-selected');
+  $('.wrap').removeClass('date-selected location-selected center-selected');
   $('.calendar *').removeClass('selected');
   e.preventDefault();
   e.stopPropagation();
 });
 
 $(document).on('click', '.deselect-location', function(e){
-  $('.wrap').removeClass('location-selected');
+  $('.wrap').removeClass('location-selected center-selected');
   $('.location-results li').removeClass('selected');
   $('.selected .location-input').val('');
+  // Clear testing center cards
+  $('.selected .testing-center-cards').html('');
+  e.preventDefault();
+  e.stopPropagation();
+});
+
+$(document).on('click', '.deselect-center', function(e){
+  $('.wrap').removeClass('center-selected');
+  $('.selected .center-card').removeClass('selected not-selected');
+  $('.selected .center-icon').css('background-image', '');
+  $('.selected .center-name-display').text('');
   e.preventDefault();
   e.stopPropagation();
 });
@@ -660,9 +700,8 @@ function handleGeolocation() {
         $('.selected.member').data('selected-location', mockCity);
         $('.wrap').addClass('location-selected');
 
-        setTimeout(function() {
-          $('.selected.member input[name="name"]').focus();
-        }, 700);
+        // Display testing centers instead of focusing on form
+        displayTestingCenters(mockCity);
       },
       function(error) {
         $icon.removeClass('loading');
@@ -690,6 +729,135 @@ function handleLocationSelect($item) {
   $('.selected.member').data('selected-location', locationText);
   $('.wrap').addClass('location-selected');
 
+  // Display testing centers instead of focusing on form
+  displayTestingCenters(locationText);
+}
+
+// ===== TESTING CENTER FUNCTIONALITY =====
+
+function generateTestingCenters(location) {
+  const centers = [];
+
+  // Extract city name from location string (e.g., "New York, NY" -> "New York")
+  const cityName = location.split(',')[0].trim();
+
+  // Generate 3 testing centers
+  for (let i = 0; i < 3; i++) {
+    const randomCompanyIndex = Math.floor(Math.random() * testingCenterNames.length);
+    const companyName = testingCenterNames[randomCompanyIndex];
+
+    // Generate random distance (0.5 to 5.2 miles)
+    const distance = (Math.random() * 4.7 + 0.5).toFixed(1);
+
+    // Generate street address
+    const streetNumber = Math.floor(Math.random() * 9000) + 1000;
+    const streets = ['Main St', 'Oak Ave', 'Park Rd', 'Medical Dr', 'Health Blvd', 'Center St', 'Wellness Way'];
+    const streetName = streets[Math.floor(Math.random() * streets.length)];
+    const address = `${streetNumber} ${streetName}, ${location}`;
+
+    // Get photo URL
+    const photoIndex = i % testingCenterPhotoIds.length;
+    const photoUrl = `https://images.unsplash.com/${testingCenterPhotoIds[photoIndex]}?w=400&h=240&fit=crop&auto=format`;
+
+    centers.push({
+      name: companyName,
+      distance: distance,
+      address: address,
+      photoUrl: photoUrl
+    });
+  }
+
+  return centers;
+}
+
+function displayTestingCenters(location) {
+  const centers = generateTestingCenters(location);
+  const $cardsContainer = $('.selected .testing-center-cards');
+
+  // Generate HTML for all 3 cards
+  let cardsHTML = '';
+  centers.forEach((center, index) => {
+    cardsHTML += `
+      <div class="center-card" data-center-index="${index}" data-center-name="${center.name}" data-center-address="${center.address}">
+        <div class="center-photo" style="background-image: url(${center.photoUrl})"></div>
+        <div class="center-info">
+          <div class="center-name">${center.name}</div>
+          <div class="center-distance">${center.distance} mi</div>
+          <div class="center-address">${center.address}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  $cardsContainer.html(cardsHTML);
+
+  // Attach event listeners to cards
+  attachCenterCardListeners();
+}
+
+function attachCenterCardListeners() {
+  const $cards = $('.selected .center-card');
+
+  // Attach hover listeners for cursor-aware animation
+  $cards.each(function() {
+    attachCursorAwareHover($(this));
+  });
+
+  // Attach click listener for selection
+  $cards.on('click', function(e) {
+    handleCenterSelect($(this));
+    e.preventDefault();
+    e.stopPropagation();
+  });
+}
+
+function attachCursorAwareHover($card) {
+  const card = $card[0];
+
+  $card.on('mousemove', function(e) {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+
+    // Apply gentle translation (2-5px max)
+    const moveX = (x / rect.width) * 5;
+    const moveY = (y / rect.height) * 5;
+
+    $card.css('transform', `translate(${moveX}px, ${moveY}px) scale(1.02)`);
+  });
+
+  $card.on('mouseleave', function() {
+    $card.css('transform', '');
+  });
+}
+
+function handleCenterSelect($card) {
+  const centerName = $card.data('center-name');
+  const centerAddress = $card.data('center-address');
+  const photoUrl = $card.find('.center-photo').css('background-image');
+
+  // Store selected center data
+  $('.selected.member').data('selected-center', centerName);
+  $('.selected.member').data('selected-center-address', centerAddress);
+
+  // Mark this card as selected
+  $card.addClass('selected');
+
+  // Mark other cards as not-selected
+  $('.selected .center-card').not($card).addClass('not-selected');
+
+  // Set the center icon background
+  const $centerIcon = $('.selected .center-icon');
+  $centerIcon.css('background-image', photoUrl);
+
+  // Set the center name display
+  const $centerNameDisplay = $('.selected .center-name-display');
+  $centerNameDisplay.text(centerName);
+
+  // Add center-selected state
+  $('.wrap').addClass('center-selected');
+
+  // Focus on name input after animation completes
   setTimeout(function() {
     $('.selected.member input[name="name"]').focus();
   }, 700);
