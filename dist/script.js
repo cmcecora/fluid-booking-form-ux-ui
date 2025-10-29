@@ -1,11 +1,11 @@
-$('.member').on('click', function(){
+$('.member').on('click', function(e){
   if (!$(this).hasClass('selected')){
     $(this).addClass('selected');
     $('.wrap').addClass('member-selected');
     addCalendar($(this).find('.calendar'));
+    e.preventDefault();
+    e.stopPropagation();
   }
-  e.preventDefault();
-  e.stopPropagation();
 });
 
 $('.deselect-member, .restart').on('click', function(e){
