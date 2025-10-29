@@ -129,11 +129,11 @@ body{
               border-bottom: 1px solid rgba($grey,0.8);
               pointer-events: none;
               &[name="name"]{
-                padding: 10rem 70rem;
+                padding: 10rem 50rem;
                 transform: translatey(-33rem);
               }
               &[name="email"]{
-                padding: 10rem 70rem;
+                padding: 10rem 50rem;
                 transform: translatey(-60rem);
               }
               &[type="submit"]{
@@ -496,7 +496,7 @@ body{
     position: absolute;
     top: 0;
     z-index: 2;
-    width: 70rem;
+    width: 50rem;
     height: 100%;
     background: white;
     transition: transform $long $ease-in-out;
@@ -514,7 +514,7 @@ body{
     font-size: 15rem;
     font-weight: 300;
     color: $grey;
-    margin-left: 70rem;
+    margin-left: 50rem;
   }
   input[type="text"], input[type="email"]{
     font-size: 25rem;
@@ -524,7 +524,7 @@ body{
     border-bottom: 1px solid $color;
     width: 100%;
     outline: none;
-    padding: 0 70rem 5rem;
+    padding: 0 50rem 5rem;
     color: $color;
     background: transparent;
   }
@@ -537,7 +537,7 @@ body{
     font-size: 20rem;
     cursor: pointer;
     margin-top: 15rem;
-    margin-left: 70rem;
+    margin-left: 50rem;
     outline: none;
   }
   *{

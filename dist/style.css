@@ -123,11 +123,11 @@ body {
   pointer-events: none;
 }
 .wrap.member-selected.date-selected.location-selected.booking-complete .form input[name=name] {
-  padding: 10rem 70rem;
+  padding: 10rem 50rem;
   transform: translatey(-33rem);
 }
 .wrap.member-selected.date-selected.location-selected.booking-complete .form input[name=email] {
-  padding: 10rem 70rem;
+  padding: 10rem 50rem;
   transform: translatey(-60rem);
 }
 .wrap.member-selected.date-selected.location-selected.booking-complete .form input[type=submit] {
@@ -476,7 +476,7 @@ body {
   position: absolute;
   top: 0;
   z-index: 2;
-  width: 70rem;
+  width: 50rem;
   height: 100%;
   background: white;
   transition: transform 800ms cubic-bezier(0.645, 0.045, 0.355, 1);
@@ -494,7 +494,7 @@ body {
   font-size: 15rem;
   font-weight: 300;
   color: #ddd;
-  margin-left: 70rem;
+  margin-left: 50rem;
 }
 .form input[type=text], .form input[type=email] {
   font-size: 25rem;
@@ -504,7 +504,7 @@ body {
   border-bottom: 1px solid hsl(241, 100%, 59%);
   width: 100%;
   outline: none;
-  padding: 0 70rem 5rem;
+  padding: 0 50rem 5rem;
   color: hsl(241, 100%, 59%);
   background: transparent;
 }
@@ -517,7 +517,7 @@ body {
   font-size: 20rem;
   cursor: pointer;
   margin-top: 15rem;
-  margin-left: 70rem;
+  margin-left: 50rem;
   outline: none;
 }
 .form * {
